@@ -1,2 +1,0 @@
-# rozprochy
-Projekt z rozporchów
