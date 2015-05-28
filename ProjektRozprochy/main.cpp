@@ -2,6 +2,14 @@
 #include "Team.h"
 #include "Ball.h"
 
+enum Direction
+{
+	left,
+	right,
+	up,
+	down
+};
+
 int main()
 {
 	srand(time(NULL));
@@ -28,9 +36,12 @@ int main()
 	window = al_create_display(WINDOW_WIDTH, WINDOW_HEIGHT);
 	al_set_window_title(window, "HaxBall");
 
+	ALLEGRO_TIMER* mainTimer = al_create_timer(1.0 / FPS);
+
 	event_queue = al_create_event_queue();
 	al_register_event_source(event_queue, al_get_keyboard_event_source());
 	al_register_event_source(event_queue, al_get_mouse_event_source());
+	al_register_event_source(event_queue, al_get_timer_event_source(mainTimer));
 	al_register_event_source(event_queue, al_get_display_event_source(window));
 
 	court = al_load_bitmap("court.png");
@@ -41,18 +52,57 @@ int main()
 
 	Ball* ball = new Ball(490, 245 + (WINDOW_HEIGHT - COURT_HEIGHT));
 
+	bool direction[4] = { false, false, false, false };
+
+	al_start_timer(mainTimer);
 	while (run == true)
 	{
 		al_wait_for_event(event_queue, &event);
 		al_get_mouse_state(&mouse);
 
-
-		if (event.type == ALLEGRO_EVENT_KEY_DOWN)
+		double change = 0.25;
+		double deltaMove = 3;
+		if (event.type == ALLEGRO_EVENT_TIMER)
+		{
+			if (direction[up] == true)
+			{
+				for (double i = 0; i < deltaMove; i += change)
+					redTeam->GetPlayers()[0]->AddY(-change);
+			}
+			if (direction[down] == true)
+			{
+				for (double i = 0; i < deltaMove; i += change)
+					redTeam->GetPlayers()[0]->AddY(change);
+			}
+			if (direction[left] == true)
+			{
+				for (double i = 0; i < deltaMove; i += change)
+					redTeam->GetPlayers()[0]->AddX(-change);
+			}
+			if (direction[right] == true)
+			{
+				for (double i = 0; i < deltaMove; i += change)
+					redTeam->GetPlayers()[0]->AddX(change);
+			}
+		}
+		else if (event.type == ALLEGRO_EVENT_KEY_DOWN)
 		{
 			switch (event.keyboard.keycode)
 			{
 				case ALLEGRO_KEY_ESCAPE:
 					run = false;
+					break;
+				case ALLEGRO_KEY_UP:
+					direction[up] = true;
+					break;
+				case ALLEGRO_KEY_DOWN:
+					direction[down] = true;
+					break;
+				case ALLEGRO_KEY_LEFT:
+					direction[left] = true;
+					break;
+				case ALLEGRO_KEY_RIGHT:
+					direction[right] = true;
 					break;
 			}
 		}
@@ -60,6 +110,25 @@ int main()
 		{
 			run = false;
 		}
+		else if (event.type == ALLEGRO_EVENT_KEY_UP)
+		{
+			switch (event.keyboard.keycode)
+			{
+			case ALLEGRO_KEY_UP:
+				direction[up] = false;
+				break;
+			case ALLEGRO_KEY_DOWN:
+				direction[down] = false;
+				break;
+			case ALLEGRO_KEY_LEFT:
+				direction[left] = false;
+				break;
+			case ALLEGRO_KEY_RIGHT:
+				direction[right] = false;
+				break;
+			}
+		}
+
 		al_clear_to_color(al_map_rgb(204, 153, 255));
 
 		char *redScore = new char[10];
@@ -74,14 +143,16 @@ int main()
 
 		al_draw_bitmap(court, 0, WINDOW_HEIGHT - 486, 0);
 
+		ball->DrawBall();
 		redTeam->DrawPlayers();
 		blueTeam->DrawPlayers();
-		ball->DrawBall();
+		
 
 		al_flip_display();
 	}
 
 	al_destroy_event_queue(event_queue);
+	al_destroy_timer(timer);
 	al_uninstall_mouse();
 	al_uninstall_keyboard();
 	al_destroy_display(window);

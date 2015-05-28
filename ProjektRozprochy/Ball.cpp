@@ -1,7 +1,7 @@
 #include "Ball.h"
 
 
-Ball::Ball(int x, int y)
+Ball::Ball(double x, double y)
 {
 	this->x = x;
 	this->y = y;
@@ -18,7 +18,7 @@ Ball::~Ball()
 
 void Ball::DrawBall()
 {
-	int xStart = x - BALL_SIZE / 2;
-	int yStart = y - BALL_SIZE / 2;
+	int xStart = x - BALL_SIZE / 2.0;
+	int yStart = y - BALL_SIZE / 2.0;
 	al_draw_bitmap(image, xStart, yStart, 0);
 }

@@ -61,3 +61,8 @@ int Team::GetScore()
 {
 	return score;
 }
+
+Player** Team::GetPlayers()
+{
+	return players;
+}

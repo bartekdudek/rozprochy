@@ -8,7 +8,7 @@ Player::Player()
 	this->y = 0;
 }
 
-Player::Player(int x, int y, Squad t)
+Player::Player(double x, double y, Squad t)
 {
 	team = t;
 	if (team == red)
@@ -28,7 +28,57 @@ Player::~Player()
 
 void Player::Draw()
 {
-	int xStart = x - PLAYER_SIZE / 2;
-	int yStart = y - PLAYER_SIZE / 2;
+	double xStart = x - PLAYER_SIZE / 2.0;
+	double yStart = y - PLAYER_SIZE / 2.0;
 	al_draw_bitmap(image, xStart, yStart, 0);
+}
+
+double Player::GetX()
+{
+	return x;
+}
+
+void Player::SetX(double x)
+{
+	if (x > X_RIGHT_BOUNDRY)
+		this->x = X_RIGHT_BOUNDRY;
+	else if (x < X_LEFT_BOUNDRY)
+		this->x = X_LEFT_BOUNDRY;
+	else
+		this->x = x;
+}
+
+double Player::GetY()
+{
+	return y;
+}
+
+void Player::SetY(double y)
+{
+	if (y > Y_DOWN_BOUNDRY)
+		this->y = Y_DOWN_BOUNDRY;
+	else if (y < Y_UP_BOUNDRY)
+		this->y = Y_UP_BOUNDRY;
+	else
+		this->y = y;
+}
+
+void Player::AddX(double a)
+{
+	if (x + a > X_RIGHT_BOUNDRY)
+		x = X_RIGHT_BOUNDRY;
+	else if (x + a < X_LEFT_BOUNDRY)
+		x = X_LEFT_BOUNDRY;
+	else
+		x += a;
+}
+
+void Player::AddY(double a)
+{
+	if (y + a > Y_DOWN_BOUNDRY)
+		y = Y_DOWN_BOUNDRY;
+	else if (y + a < Y_UP_BOUNDRY)
+		y = Y_UP_BOUNDRY;
+	else
+		y += a;
 }

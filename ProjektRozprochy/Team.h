@@ -15,5 +15,6 @@ public:
 	void DrawPlayers();
 
 	int GetScore();
+	Player** GetPlayers();
 };
 

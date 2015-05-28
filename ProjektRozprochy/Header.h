@@ -35,6 +35,8 @@
 
 #define PLAYERS_IN_TEAM 2
 
+#define FPS 140
+
 enum Squad
 {
 	red,

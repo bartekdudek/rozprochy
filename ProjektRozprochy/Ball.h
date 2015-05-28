@@ -3,11 +3,11 @@
 class Ball
 {
 private:
-	int x;
-	int y;
+	double x;
+	double y;
 	ALLEGRO_BITMAP* image;
 public:
-	Ball(int x, int y);
+	Ball(double x, double y);
 	~Ball();
 	void DrawBall();
 };
