@@ -1,20 +1,10 @@
-#ifdef _MSC_VER
-#define _CRT_SECURE_NO_WARNINGS
-#endif
-
-#include <iostream>
-#include <allegro5/allegro.h>
-#include <allegro5/allegro_image.h>
-#include <allegro5/allegro_font.h>
-#include <allegro5/allegro_ttf.h>
-#include <allegro5/allegro_primitives.h>
-#include <string>
-
-#define WINDOW_WIDTH 982
-#define WINDOW_HEIGHT 600
+#include "Header.h"
+#include "Team.h"
+#include "Ball.h"
 
 int main()
 {
+	srand(time(NULL));
 	al_init();
 	al_install_keyboard();
 	al_install_mouse();
@@ -34,9 +24,6 @@ int main()
 	
 	bool run;
 
-	int redTeamScore = 0;
-	int blueTeamScore = 0;
-
 	run = true;
 	window = al_create_display(WINDOW_WIDTH, WINDOW_HEIGHT);
 	al_set_window_title(window, "HaxBall");
@@ -48,6 +35,11 @@ int main()
 
 	court = al_load_bitmap("court.png");
 	font = al_load_ttf_font("Dolce_Vita.ttf", 72, 10);
+
+	Team* redTeam = new Team(red);
+	Team* blueTeam = new Team(blue);
+
+	Ball* ball = new Ball(490, 245 + (WINDOW_HEIGHT - COURT_HEIGHT));
 
 	while (run == true)
 	{
@@ -71,16 +63,21 @@ int main()
 		al_clear_to_color(al_map_rgb(204, 153, 255));
 
 		char *redScore = new char[10];
-		sprintf(redScore, "%d", redTeamScore);
+		sprintf(redScore, "%d", redTeam->GetScore());
 
 		char *blueScore = new char[10];
-		sprintf(blueScore, "%d", blueTeamScore);
+		sprintf(blueScore, "%d", blueTeam->GetScore());
 
 		al_draw_text(font, al_map_rgb(255, 0, 0), WINDOW_WIDTH / 2 - 70, 20, 0, redScore);
 		al_draw_text(font, al_map_rgb(0, 0, 0), WINDOW_WIDTH / 2, 20, 0, ":");
 		al_draw_text(font, al_map_rgb(0, 0, 255), WINDOW_WIDTH / 2 + 50, 20, 0, blueScore);
 
 		al_draw_bitmap(court, 0, WINDOW_HEIGHT - 486, 0);
+
+		redTeam->DrawPlayers();
+		blueTeam->DrawPlayers();
+		ball->DrawBall();
+
 		al_flip_display();
 	}
 
