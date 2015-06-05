@@ -1,3 +1,6 @@
+#ifndef MAIN
+#define MAIN
+
 #include "Header.h"
 #include "Team.h"
 #include "Ball.h"
@@ -61,28 +64,28 @@ int main()
 		al_get_mouse_state(&mouse);
 
 		double change = 0.25;
-		double deltaMove = 3;
+		double deltaMove = 1.4;
 		if (event.type == ALLEGRO_EVENT_TIMER)
 		{
 			if (direction[up] == true)
 			{
 				for (double i = 0; i < deltaMove; i += change)
-					redTeam->GetPlayers()[0]->AddY(-change);
+					redTeam->GetPlayers()[0]->AddY(-change, redTeam, blueTeam);
 			}
 			if (direction[down] == true)
 			{
 				for (double i = 0; i < deltaMove; i += change)
-					redTeam->GetPlayers()[0]->AddY(change);
+					redTeam->GetPlayers()[0]->AddY(change, redTeam, blueTeam);
 			}
 			if (direction[left] == true)
 			{
 				for (double i = 0; i < deltaMove; i += change)
-					redTeam->GetPlayers()[0]->AddX(-change);
+					redTeam->GetPlayers()[0]->AddX(-change, redTeam, blueTeam);
 			}
 			if (direction[right] == true)
 			{
 				for (double i = 0; i < deltaMove; i += change)
-					redTeam->GetPlayers()[0]->AddX(change);
+					redTeam->GetPlayers()[0]->AddX(change, redTeam, blueTeam);
 			}
 		}
 		else if (event.type == ALLEGRO_EVENT_KEY_DOWN)
@@ -160,3 +163,4 @@ int main()
 
 	return 0;
 }
+#endif MAIN

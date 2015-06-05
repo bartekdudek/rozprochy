@@ -15,13 +15,13 @@
 #include <allegro5/allegro_primitives.h>
 
 
-#define WINDOW_WIDTH 982
+#define WINDOW_WIDTH  982
 #define WINDOW_HEIGHT 600
 
-#define COURT_WIDTH 982
+#define COURT_WIDTH  982
 #define COURT_HEIGHT 486
 
-#define PLACE_TO_PLAY_WIDTH 850
+#define PLACE_TO_PLAY_WIDTH  850
 #define PLACE_TO_PLAY_HEIGHT 390
 
 #define X_LEFT_BOUNDRY ((WINDOW_WIDTH - PLACE_TO_PLAY_WIDTH) / 2 + PLAYER_SIZE / 2)
@@ -31,14 +31,18 @@
 #define Y_DOWN_BOUNDRY (WINDOW_HEIGHT - ((COURT_HEIGHT - PLACE_TO_PLAY_HEIGHT) / 2) - PLAYER_SIZE / 2)
 
 #define PLAYER_SIZE 50
-#define BALL_SIZE 35
+#define BALL_SIZE   35
 
 #define PLAYERS_IN_TEAM 2
 
 #define FPS 140
 
+#define MINUS_ONE -1.0
+#define PLUS_ONE   1.0
+
 enum Squad
 {
 	red,
-	blue
+	blue,
+	SQUAD_NR_ITEMS
 };

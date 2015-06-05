@@ -1,7 +1,10 @@
-#pragma once
+#ifndef TEAM_H
+#define TEAM_H
+
 #include "Header.h"
 #include "Player.h"
 
+class Player;
 class Team
 {
 private:
@@ -17,4 +20,4 @@ public:
 	int GetScore();
 	Player** GetPlayers();
 };
-
+#endif

@@ -1,5 +1,10 @@
-#pragma once
+#ifndef PLAYER_H
+#define PLAYER_H
+
 #include "Header.h"
+#include "Common.h"
+
+class Team;
 
 class Player
 {
@@ -20,8 +25,8 @@ public:
 	double GetY();
 	void SetY(double y);
 
-	void AddX(double a);
-	void AddY(double a);
+	void AddX(double a, Team* red, Team* blue);
+	void AddY(double a, Team* red, Team* blue);
 
 };
-
+#endif
