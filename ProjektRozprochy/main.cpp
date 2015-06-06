@@ -34,6 +34,7 @@ int main()
 	ALLEGRO_FONT *font;
 	
 	bool run;
+	bool kick = false;
 
 	run = true;
 	window = al_create_display(WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -53,7 +54,7 @@ int main()
 	Team* redTeam = new Team(red);
 	Team* blueTeam = new Team(blue);
 
-	Ball* ball = new Ball(490, 245 + (WINDOW_HEIGHT - COURT_HEIGHT));
+	Ball* ball = new Ball(491, 245 + (WINDOW_HEIGHT - COURT_HEIGHT));
 
 	bool direction[4] = { false, false, false, false };
 
@@ -63,43 +64,42 @@ int main()
 		al_wait_for_event(event_queue, &event);
 		al_get_mouse_state(&mouse);
 
-		double change = 0.25;
-		double deltaMove = 1.4;
-		if (event.type == ALLEGRO_EVENT_TIMER)
-		{
-			if (direction[up] == true)
-			{
-				for (double i = 0; i < deltaMove; i += change)
-					redTeam->GetPlayers()[0]->AddY(-change, redTeam, blueTeam);
+		double change = MOVE_CHANGE;
+		double deltaMove = MOVE_DELTA;
+		if (event.type == ALLEGRO_EVENT_TIMER) {
+			if (kick == false) {
+				if (direction[up] == true) {
+					for (double i = 0; i < deltaMove; i += change)
+						redTeam->GetPlayers()[0]->AddY(-change, redTeam, blueTeam, ball);
+				}
+				if (direction[down] == true) {
+					for (double i = 0; i < deltaMove; i += change)
+						redTeam->GetPlayers()[0]->AddY(change, redTeam, blueTeam, ball);
+				}
+				if (direction[left] == true) {
+					for (double i = 0; i < deltaMove; i += change)
+						redTeam->GetPlayers()[0]->AddX(-change, redTeam, blueTeam, ball);
+				}
+				if (direction[right] == true) {
+					for (double i = 0; i < deltaMove; i += change)
+						redTeam->GetPlayers()[0]->AddX(change, redTeam, blueTeam, ball);
+				}
 			}
-			if (direction[down] == true)
-			{
-				for (double i = 0; i < deltaMove; i += change)
-					redTeam->GetPlayers()[0]->AddY(change, redTeam, blueTeam);
-			}
-			if (direction[left] == true)
-			{
-				for (double i = 0; i < deltaMove; i += change)
-					redTeam->GetPlayers()[0]->AddX(-change, redTeam, blueTeam);
-			}
-			if (direction[right] == true)
-			{
-				for (double i = 0; i < deltaMove; i += change)
-					redTeam->GetPlayers()[0]->AddX(change, redTeam, blueTeam);
-			}
+			kick = false;
+			ball->MoveBall(redTeam, blueTeam);
 		}
-		else if (event.type == ALLEGRO_EVENT_KEY_DOWN)
-		{
-			switch (event.keyboard.keycode)
-			{
+		else if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
+			switch (event.keyboard.keycode) {
 				case ALLEGRO_KEY_ESCAPE:
 					run = false;
 					break;
 				case ALLEGRO_KEY_UP:
 					direction[up] = true;
+					redTeam->GetPlayers()[0]->SetHorizontally(true, -1.0);
 					break;
 				case ALLEGRO_KEY_DOWN:
 					direction[down] = true;
+					redTeam->GetPlayers()[0]->SetHorizontally(true, 1.0);
 					break;
 				case ALLEGRO_KEY_LEFT:
 					direction[left] = true;
@@ -107,27 +107,33 @@ int main()
 				case ALLEGRO_KEY_RIGHT:
 					direction[right] = true;
 					break;
+				case ALLEGRO_KEY_SPACE:
+					redTeam->GetPlayers()[0]->Kicked(ball);
+					kick = true;
+					break;
 			}
 		}
-		else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) 
-		{
+		else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)  {
 			run = false;
 		}
-		else if (event.type == ALLEGRO_EVENT_KEY_UP)
-		{
+		else if (event.type == ALLEGRO_EVENT_KEY_UP) {
 			switch (event.keyboard.keycode)
 			{
 			case ALLEGRO_KEY_UP:
 				direction[up] = false;
+				redTeam->GetPlayers()[0]->SetHorizontally(false, NULL);
 				break;
 			case ALLEGRO_KEY_DOWN:
 				direction[down] = false;
+				redTeam->GetPlayers()[0]->SetHorizontally(false, NULL);
 				break;
 			case ALLEGRO_KEY_LEFT:
 				direction[left] = false;
 				break;
 			case ALLEGRO_KEY_RIGHT:
 				direction[right] = false;
+				break;
+			case ALLEGRO_KEY_SPACE:
 				break;
 			}
 		}
