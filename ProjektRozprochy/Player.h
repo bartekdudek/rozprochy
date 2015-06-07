@@ -15,10 +15,10 @@ public:
 	void Draw();
 
 	double GetX();
-	void SetX(double x);
+	void SetX(double xC);
 
 	double GetY();
-	void SetY(double y);
+	void SetY(double yC);
 
 	void AddX(double a);
 	void AddY(double a);

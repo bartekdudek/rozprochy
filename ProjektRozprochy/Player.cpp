@@ -38,14 +38,10 @@ double Player::GetX()
 	return x;
 }
 
-void Player::SetX(double x)
+void Player::SetX(double xC)
 {
-	if (x > X_RIGHT_BOUNDRY)
-		this->x = X_RIGHT_BOUNDRY;
-	else if (x < X_LEFT_BOUNDRY)
-		this->x = X_LEFT_BOUNDRY;
-	else
-		this->x = x;
+
+	this->x = xC;
 }
 
 double Player::GetY()
@@ -53,14 +49,9 @@ double Player::GetY()
 	return y;
 }
 
-void Player::SetY(double y)
+void Player::SetY(double yC)
 {
-	if (y > Y_DOWN_BOUNDRY)
-		this->y = Y_DOWN_BOUNDRY;
-	else if (y < Y_UP_BOUNDRY)
-		this->y = Y_UP_BOUNDRY;
-	else
-		this->y = y;
+	this->y = yC;
 }
 
 void Player::AddX(double a)

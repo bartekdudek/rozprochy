@@ -35,10 +35,16 @@
 
 #define PLAYERS_IN_TEAM 2
 
-#define FPS 140
+#define FPS 140.0
 
 enum Squad
 {
 	red,
 	blue
+};
+
+struct Point
+{
+	double x;
+	double y;
 };
