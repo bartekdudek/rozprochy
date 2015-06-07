@@ -62,10 +62,9 @@ DWORD WINAPI connection(void *argumenty)
 	SOCKET sock = moje_dane->s;
 	int number = moje_dane->numer;
 
-	while (1)
+	while (recv(sock, buf, 80, 0) > 0)
 	{
-		send(s, " ", 80, 0);
-		recv(sock, buf, 80, 0);
+		
 		if (strcmp(buf, "Initialize") == 0)
 		{
 			while (busy == 1);
