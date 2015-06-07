@@ -42,6 +42,7 @@
 
 #define MOVE_CHANGE 0.1
 #define MOVE_DELTA  1.0
+#define DIRECTING_COEFF 3.0
 
 #define KICK_CHANGE   3.0
 #define KICK_DISTANCE 10.0

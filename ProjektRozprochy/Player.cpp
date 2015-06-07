@@ -77,7 +77,6 @@ void Player::AddX(double a, Team* redTeam, Team* blueTeam, Ball* ball)
 	double coeff_a = NULL;
 	double coeff_b = NULL;
 	double new_y = NULL;
-	double directing_coeff = 3.0;
 	double delta_y = ball->GetY() - y;
 	double delta_x = ball->GetX() - x;
 	bool collision = false;
@@ -128,7 +127,7 @@ void Player::AddX(double a, Team* redTeam, Team* blueTeam, Ball* ball)
 
 		if (horizontally == true && fabs(delta_y) > fabs(delta_x) && near_the_boundry == false) {
 			if (fsign(delta_y) == ysign) {
-				ball->SetSpeed((delta_y)*directing_coeff, delta_x, vertical, false);
+				ball->SetSpeed((delta_y)*DIRECTING_COEFF, delta_x, vertical, false);
 			} else if (fsign(delta_y) != ysign && fabs(delta_y) <= BALL_SIZE/2.0 + PLAYER_SIZE/2.0) { 
 				ball->SetSpeed(0, delta_x, vertical, false);
 			} else { 
@@ -136,7 +135,7 @@ void Player::AddX(double a, Team* redTeam, Team* blueTeam, Ball* ball)
 			}
 		} else if (horizontally == true && fabs(delta_y) < fabs(delta_x) && near_the_boundry == false) {
 			if (fsign(delta_x) == fsign(a)) {
-				ball->SetSpeed(delta_y, delta_x*directing_coeff, vertical, false);
+				ball->SetSpeed(delta_y, delta_x*DIRECTING_COEFF, vertical, false);
 			}
 			else if (fsign(delta_x) != fsign(a) && fabs(delta_x) <= BALL_SIZE/2.0 + PLAYER_SIZE/2.0) {
 				ball->SetSpeed(delta_y, 0, vertical, false);
