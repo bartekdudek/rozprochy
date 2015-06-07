@@ -7,6 +7,7 @@
 #include <winsock.h>
 #include <windows.h>
 #include <stdlib.h>
+#include <time.h>
 
 #define WINDOW_WIDTH 982
 #define WINDOW_HEIGHT 600
@@ -52,4 +53,12 @@ struct Point
 {
 	double x;
 	double y;
+};
+
+enum Direction
+{
+	left,
+	right,
+	up,
+	down
 };

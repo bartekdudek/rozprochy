@@ -62,7 +62,6 @@ int main()
 	ALLEGRO_FONT *font;
 	
 	bool run;
-	int busy = 0;
 
 	run = true;
 	window = al_create_display(WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -93,19 +92,20 @@ int main()
 	int order;
 	Squad team;
 
+	HANDLE ghMutex = CreateMutex(
+		NULL,              // default security attributes
+		FALSE,             // initially not owned
+		NULL);             // unnamed mutex;
+
 	wersja = MAKEWORD(2, 0);
 	WSAStartup(wersja, &wsas);
 	s = socket(AF_INET, SOCK_STREAM, 0);
-	timeval tv;
-	tv.tv_sec = 0;
-	tv.tv_usec = 160;
 
 	memset((void *)(&sa), 0, sizeof(sa));
 	sa.sin_family = AF_INET;
-	sa.sin_port = htons(3000);
+	sa.sin_port = htons(10000);
 	sa.sin_addr.s_addr = inet_addr("127.0.0.1"); //testowe
 	//sa.sin_addr.s_addr = inet_addr("192.168.1.102");
-
 
 	result = connect(s, (struct sockaddr FAR *) &sa, sizeof(sa));
 	if (result == SOCKET_ERROR)
@@ -130,6 +130,7 @@ int main()
 
 	bool ok = false;
 
+	DWORD dwWaitResult;
 
 	al_start_timer(mainTimer);
 	al_start_timer(loadingTimer);
@@ -149,16 +150,16 @@ int main()
 		{
 			if (event.type == ALLEGRO_EVENT_TIMER)
 			{
-				while (busy == 1);
-				busy = 1;
+				WaitForSingleObject(ghMutex, INFINITE);
+				printf("Chce sprawdzic czy sa gracze\n");
 				send(s, "Check", 80, 0);
+				printf("Czekam -  sprawdzic czy sa gracze\n");
 				recv(s, tmp, 80, 0);
-
+				printf("Juz -  sprawdzic czy sa gracze\n");
 				int a = atoi(tmp);
 				if (a == PLAYERS_IN_TEAM * 2)
 				{
 					ok = true;
-
 					receiveCoeffs(s, allCoefficients, redTeam, blueTeam);
 				}
 				else
@@ -168,137 +169,122 @@ int main()
 					al_draw_text(font, al_map_rgb(255, 0, 0), 0, 20, 0, "Waiting for other players...");
 					al_flip_display();
 				}
-				busy = 0;
+				ReleaseMutex(ghMutex);
 				continue;
 			}
 			
 		}
 		else
 		{
-			double change = 0.25;
-			double deltaMove = 3;
-
-
-				if (event.type == ALLEGRO_EVENT_TIMER)
+			if (event.type == ALLEGRO_EVENT_KEY_DOWN)
+			{
+				switch (event.keyboard.keycode)
 				{
-					while (busy == 1);
-					busy = 1;
-					if (direction[up] == true)
-					{
-						send(s, "Move", 80, 0);
-						sprintf(tmp, "%d", order);
-						send(s, tmp, 80, 0);
-						send(s, "Up", 80, 0);
-						receiveCoeffs(s, allCoefficients, redTeam, blueTeam);
-					}
-					if (direction[down] == true)
-					{
-						send(s, "Move", 80, 0);
-						sprintf(tmp, "%d", order);
-						send(s, tmp, 80, 0);
-						send(s, "Down", 80, 0);
-						receiveCoeffs(s, allCoefficients, redTeam, blueTeam);
-					}
-					if (direction[left] == true)
-					{
-						send(s, "Move", 80, 0);
-						sprintf(tmp, "%d", order);
-						send(s, tmp, 80, 0);
-						send(s, "Left", 80, 0);
-						receiveCoeffs(s, allCoefficients, redTeam, blueTeam);
-					}
-					if (direction[right] == true)
-					{
-						send(s, "Move", 80, 0);
-						sprintf(tmp, "%d", order);
-						send(s, tmp, 80, 0);
-						send(s, "Right", 80, 0);
-						receiveCoeffs(s, allCoefficients, redTeam, blueTeam);
-					}
-					busy = 0;
-				}
-				if (event.type == ALLEGRO_EVENT_KEY_DOWN)
-				{
-					while (busy == 1);
-					busy = 1;
-					switch (event.keyboard.keycode)
-					{
-					case ALLEGRO_KEY_ESCAPE:
-						send(s, "End", 80, 0);
-						run = false;
-						break;
-					case ALLEGRO_KEY_UP:
-						direction[up] = true;
-						break;
-					case ALLEGRO_KEY_DOWN:
-						direction[down] = true;
-						break;
-					case ALLEGRO_KEY_LEFT:
-						direction[left] = true;
-						break;
-					case ALLEGRO_KEY_RIGHT:
-						direction[right] = true;
-						break;
-					}
-					busy = 0;
-				}
-				if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
-				{
+				case ALLEGRO_KEY_ESCAPE:
+					WaitForSingleObject(ghMutex, INFINITE);
 					send(s, "End", 80, 0);
+					ReleaseMutex(ghMutex);
 					run = false;
+					break;
+				case ALLEGRO_KEY_UP:
+					WaitForSingleObject(ghMutex, INFINITE);
+					send(s, "UpTrue", 80, 0);
+					ReleaseMutex(ghMutex);
+					direction[up] = true;
+					break;
+				case ALLEGRO_KEY_DOWN:
+					WaitForSingleObject(ghMutex, INFINITE);
+					send(s, "DownTrue", 80, 0);
+					ReleaseMutex(ghMutex);
+					direction[down] = true;
+					break;
+				case ALLEGRO_KEY_LEFT:
+					WaitForSingleObject(ghMutex, INFINITE);
+					send(s, "LeftTrue", 80, 0);
+					ReleaseMutex(ghMutex);
+					direction[left] = true;
+					break;
+				case ALLEGRO_KEY_RIGHT:
+					WaitForSingleObject(ghMutex, INFINITE);
+					send(s, "RightTrue", 80, 0);
+					ReleaseMutex(ghMutex);
+					direction[right] = true;
+					break;
 				}
-				if (event.type == ALLEGRO_EVENT_KEY_UP)
+			}
+			if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+			{
+				send(s, "End", 80, 0);
+				run = false;
+			}
+			if (event.type == ALLEGRO_EVENT_KEY_UP)
+			{
+				switch (event.keyboard.keycode)
 				{
-					switch (event.keyboard.keycode)
-					{
-					case ALLEGRO_KEY_UP:
-						direction[up] = false;
-						break;
-					case ALLEGRO_KEY_DOWN:
-						direction[down] = false;
-						break;
-					case ALLEGRO_KEY_LEFT:
-						direction[left] = false;
-						break;
-					case ALLEGRO_KEY_RIGHT:
-						direction[right] = false;
-						break;
-					}
+				case ALLEGRO_KEY_UP:
+					WaitForSingleObject(ghMutex, INFINITE);
+					send(s, "UpFalse", 80, 0);
+					ReleaseMutex(ghMutex);
+					direction[up] = false;
+					break;
+				case ALLEGRO_KEY_DOWN:
+					WaitForSingleObject(ghMutex, INFINITE);
+					send(s, "DownFalse", 80, 0);
+					ReleaseMutex(ghMutex);
+					direction[down] = false;
+					break;
+				case ALLEGRO_KEY_LEFT:
+					WaitForSingleObject(ghMutex, INFINITE);
+					send(s, "LeftFalse", 80, 0);
+					ReleaseMutex(ghMutex);
+					direction[left] = false;
+					break;
+				case ALLEGRO_KEY_RIGHT:
+					WaitForSingleObject(ghMutex, INFINITE);
+					send(s, "RightFalse", 80, 0);
+					ReleaseMutex(ghMutex);
+					direction[right] = false;
+					break;
 				}
+			}
 
-				if (event.timer.source == loadingTimer)
-				{
-					while (busy == 1);
-					busy = 1;
-					send(s, "GetCoeff", 80, 0);
-					receiveCoeffs(s, allCoefficients, redTeam, blueTeam);
-					busy = 0;
-				}
-				al_clear_to_color(al_map_rgb(204, 153, 255));
+			if (event.timer.source == loadingTimer)
+			{
+				if (direction[up] == false && direction[down] == false && direction[right] == false
+					&& direction[left] == false)
 
-				char *redScore = new char[10];
-				sprintf(redScore, "%d", redTeam->GetScore());
+				WaitForSingleObject(ghMutex, INFINITE);
+				printf("Sprawwdzam co sie dzieje - coeffy\n");
+				send(s, "GetCoeff", 80, 0);
+				printf("czekuje na coeffy - prawwdzam co sie dzieje\n");
+				receiveCoeffs(s, allCoefficients, redTeam, blueTeam);
+				printf("Dostalem coeffki\n");
+				ReleaseMutex(ghMutex);
+			}
+			al_clear_to_color(al_map_rgb(204, 153, 255));
 
-				char *blueScore = new char[10];
-				sprintf(blueScore, "%d", blueTeam->GetScore());
+			char *redScore = new char[10];
+			sprintf(redScore, "%d", redTeam->GetScore());
 
-				al_draw_text(font, al_map_rgb(255, 0, 0), WINDOW_WIDTH / 2 - 70, 20, 0, redScore);
-				al_draw_text(font, al_map_rgb(0, 0, 0), WINDOW_WIDTH / 2, 20, 0, ":");
-				al_draw_text(font, al_map_rgb(0, 0, 255), WINDOW_WIDTH / 2 + 50, 20, 0, blueScore);
+			char *blueScore = new char[10];
+			sprintf(blueScore, "%d", blueTeam->GetScore());
 
-				al_draw_bitmap(court, 0, WINDOW_HEIGHT - 486, 0);
+			al_draw_text(font, al_map_rgb(255, 0, 0), WINDOW_WIDTH / 2 - 70, 20, 0, redScore);
+			al_draw_text(font, al_map_rgb(0, 0, 0), WINDOW_WIDTH / 2, 20, 0, ":");
+			al_draw_text(font, al_map_rgb(0, 0, 255), WINDOW_WIDTH / 2 + 50, 20, 0, blueScore);
 
-				ball->DrawBall();
-				redTeam->DrawPlayers();
-				blueTeam->DrawPlayers();
+			al_draw_bitmap(court, 0, WINDOW_HEIGHT - 486, 0);
+
+			ball->DrawBall();
+			redTeam->DrawPlayers();
+			blueTeam->DrawPlayers();
 
 
-				al_flip_display();
-
-
+			al_flip_display();
 		}
 	}
 
+	CloseHandle(ghMutex);
 	al_destroy_event_queue(event_queue);
 	al_destroy_timer(mainTimer);
 	al_destroy_timer(loadingTimer);

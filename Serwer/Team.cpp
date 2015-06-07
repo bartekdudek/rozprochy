@@ -1,7 +1,5 @@
 #include "Team.h"
 
-extern volatile int working;
-
 Team::Team(enum Squad t)
 {
 	score = 0;
@@ -59,8 +57,5 @@ int Team::GetScore()
 
 Player** Team::GetPlayers()
 {
-	while (working == 1);
-	working = 1;
-	working = 0;
 	return players;
 }
