@@ -96,16 +96,22 @@ void Ball::MoveBall(Team* redTeam, Team* blueTeam)
 				{
 					shift = sqrt(pow(PLAYER_SIZE, 2.0) - pow(y - temp->GetY(), 2.0));
 					temp_x = temp->GetX() - shift*fsign(temp->GetX() - x);
+					
 
 					shift = sqrt(pow(PLAYER_SIZE, 2.0) - pow(x - temp->GetX(), 2.0));
 					y = temp->GetY() - shift*fsign(temp->GetY() - y);
 				} else {
 					shift = sqrt(pow(PLAYER_SIZE, 2.0) - pow(y - temp->GetY(), 2.0));
 					temp_x = temp->GetX() - shift*fsign(temp->GetX() - x);
-
+					if (collision == false && temp_x >= X_LEFT_BOUNDRY && temp_x <= X_RIGHT_BOUNDRY) {
+						x = temp_x;
+					}
 
 					shift = sqrt(pow(PLAYER_SIZE, 2.0) - pow(x - temp->GetX(), 2.0));
-					y = temp->GetY() - shift*fsign(temp->GetY() - y);
+					temp_y = temp->GetY() - shift*fsign(temp->GetY() - y);
+					if (collision == false && temp_y >= Y_UP_BOUNDRY && temp_y <= Y_DOWN_BOUNDRY) {
+						y = temp_y;
+					}
 					collision = true;
 				}
 				if (v > MOVE_CHANGE)
