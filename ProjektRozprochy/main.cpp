@@ -16,20 +16,24 @@ void receiveCoeffs(SOCKET s, Point* allCoefficients, Team* redTeam, Team* blueTe
 	int i;
 	char* tmp = (char*)malloc(sizeof(char) * 160);
 
-	for (i = 0; i < PLAYERS_IN_TEAM; i++)
+	if (tmp)
 	{
-		recv(s, tmp, 160, 0);
-		redTeam->GetPlayers()[i]->SetX(atof(tmp));
-		recv(s, tmp, 160, 0);
-		redTeam->GetPlayers()[i]->SetY(atof(tmp));
-	}
+		for (i = 0; i < PLAYERS_IN_TEAM; i++)
+		{
+			recv(s, tmp, 160, 0);
+			redTeam->GetPlayers()[i]->SetX(atof(tmp));
+			recv(s, tmp, 160, 0);
+			redTeam->GetPlayers()[i]->SetY(atof(tmp));
+		}
 
-	for (i = 0; i < PLAYERS_IN_TEAM; i++)
-	{
-		recv(s, tmp, 160, 0);
-		blueTeam->GetPlayers()[i]->SetX(atof(tmp));
-		recv(s, tmp, 160, 0);
-		blueTeam->GetPlayers()[i]->SetY(atof(tmp));
+		for (i = 0; i < PLAYERS_IN_TEAM; i++)
+		{
+			recv(s, tmp, 160, 0);
+			blueTeam->GetPlayers()[i]->SetX(atof(tmp));
+			recv(s, tmp, 160, 0);
+			blueTeam->GetPlayers()[i]->SetY(atof(tmp));
+		}
+		free(tmp);
 	}
 }
 
@@ -41,7 +45,6 @@ int main()
 	WORD wersja;
 	int result;
 
-	int i;
 
 	srand(time(NULL));
 	al_init();
@@ -68,7 +71,7 @@ int main()
 	al_set_window_title(window, "HaxBall");
 
 	ALLEGRO_TIMER* mainTimer = al_create_timer(1.0 / FPS);
-	ALLEGRO_TIMER* loadingTimer = al_create_timer(1.0 / 20.0);
+	ALLEGRO_TIMER* loadingTimer = al_create_timer(1.0 / LPS);
 
 	event_queue = al_create_event_queue();
 	al_register_event_source(event_queue, al_get_keyboard_event_source());
@@ -261,26 +264,29 @@ int main()
 				printf("Dostalem coeffki\n");
 				ReleaseMutex(ghMutex);
 			}
-			al_clear_to_color(al_map_rgb(204, 153, 255));
+			else if (event.timer.source == mainTimer)
+			{
+				al_clear_to_color(al_map_rgb(204, 153, 255));
 
-			char *redScore = new char[10];
-			sprintf(redScore, "%d", redTeam->GetScore());
+				char *redScore = new char[10];
+				sprintf(redScore, "%d", redTeam->GetScore());
 
-			char *blueScore = new char[10];
-			sprintf(blueScore, "%d", blueTeam->GetScore());
+				char *blueScore = new char[10];
+				sprintf(blueScore, "%d", blueTeam->GetScore());
 
-			al_draw_text(font, al_map_rgb(255, 0, 0), WINDOW_WIDTH / 2 - 70, 20, 0, redScore);
-			al_draw_text(font, al_map_rgb(0, 0, 0), WINDOW_WIDTH / 2, 20, 0, ":");
-			al_draw_text(font, al_map_rgb(0, 0, 255), WINDOW_WIDTH / 2 + 50, 20, 0, blueScore);
+				al_draw_text(font, al_map_rgb(255, 0, 0), WINDOW_WIDTH / 2 - 70, 20, 0, redScore);
+				al_draw_text(font, al_map_rgb(0, 0, 0), WINDOW_WIDTH / 2, 20, 0, ":");
+				al_draw_text(font, al_map_rgb(0, 0, 255), WINDOW_WIDTH / 2 + 50, 20, 0, blueScore);
 
-			al_draw_bitmap(court, 0, WINDOW_HEIGHT - 486, 0);
+				al_draw_bitmap(court, 0, WINDOW_HEIGHT - 486, 0);
 
-			ball->DrawBall();
-			redTeam->DrawPlayers();
-			blueTeam->DrawPlayers();
+				ball->DrawBall();
+				redTeam->DrawPlayers();
+				blueTeam->DrawPlayers();
 
 
-			al_flip_display();
+				al_flip_display();
+			}
 		}
 	}
 

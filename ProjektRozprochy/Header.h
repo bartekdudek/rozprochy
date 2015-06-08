@@ -35,7 +35,8 @@
 
 #define PLAYERS_IN_TEAM 2
 
-#define FPS 140.0
+#define FPS 80.0
+#define LPS 25.0 //loads per second
 
 enum Squad
 {
