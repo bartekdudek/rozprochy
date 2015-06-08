@@ -19,7 +19,6 @@ struct sockaddr_in sa;
 struct sockaddr_in sc;
 
 int lenc;
-char buf[80];
 int i;
 
 int order = 0;
@@ -58,6 +57,7 @@ void sendCoeff(SOCKET sock)
 
 DWORD WINAPI connection(void *argumenty)
 {
+	char buf[80];
 	struct dane_dla_watku *moje_dane = (struct dane_dla_watku *)argumenty;
 	SOCKET sock = moje_dane->s;
 	int number = moje_dane->numer;
@@ -65,162 +65,162 @@ DWORD WINAPI connection(void *argumenty)
 
 	while (1)
 	{
-		recv(sock, buf, 80, 0);
-		if (strcmp(buf, "Initialize") == 0)
+		if (recv(sock, buf, 80, 0) > 0)
 		{
-			WaitForSingleObject(ghMutex, INFINITE);
+			if (strcmp(buf, "Initialize") == 0)
+			{
+				WaitForSingleObject(ghMutex, INFINITE);
 
-			order++;
-			printf("Hey! %d player(s) already!\n", order);
-			sprintf(tempString, "%d", order); //ile zawodnikow zrobilem juz przed Toba lacznie z Toba
+				order++;
+				printf("Hey! %d player(s) already!\n", order);
+				sprintf(tempString, "%d", order); //ile zawodnikow zrobilem juz przed Toba lacznie z Toba
 
-			send(sock, tempString, 80, 0);
-			if (order <= PLAYERS_IN_TEAM)
-				team = "red";
-			else
-				team = "blue";
-			send(sock, team, 80, 0);
-			
-			if (order == PLAYERS_IN_TEAM * 2)
-				printf("All players joined server.\n");
-			ReleaseMutex(ghMutex);
-		}
-		else if (strcmp(buf, "Check") == 0)
-		{
-			WaitForSingleObject(ghMutex, INFINITE);
+				send(sock, tempString, 80, 0);
+				if (order <= PLAYERS_IN_TEAM)
+					team = "red";
+				else
+					team = "blue";
+				send(sock, team, 80, 0);
 
-			printf("Gracz %d sprawdza, czy sa wszyscy gracze.\n", number);
-			sprintf(tempString, "%d", order); //ile zawodnikow zrobilem juz przed Toba lacznie z Toba
+				if (order == PLAYERS_IN_TEAM * 2)
+					printf("All players joined server.\n");
+				ReleaseMutex(ghMutex);
+			}
+			else if (strcmp(buf, "Check") == 0)
+			{
+				WaitForSingleObject(ghMutex, INFINITE);
 
-			send(sock, tempString, 80, 0);
+				printf("Gracz %d sprawdza, czy sa wszyscy gracze.\n", number);
+				sprintf(tempString, "%d", order); //ile zawodnikow zrobilem juz przed Toba lacznie z Toba
 
-			if (order == PLAYERS_IN_TEAM * 2)
+				send(sock, tempString, 80, 0);
+
+				if (order == PLAYERS_IN_TEAM * 2)
+					sendCoeff(sock);
+				printf("Gracz %d koncz sprawdzac.\n", number);
+
+				ReleaseMutex(ghMutex);
+			}
+			else if (strcmp(buf, "GetCoeff") == 0)
+			{
+				WaitForSingleObject(ghMutex, INFINITE);
+
+				printf("Gracz %d pobiera dane.\n", number);
 				sendCoeff(sock);
-			printf("Gracz %d koncz sprawdzac.\n", number);
+				printf("Gracz %d konczy pobierac dane.\n", number);
 
-			ReleaseMutex(ghMutex);
-		}
-		else if (strcmp(buf, "GetCoeff") == 0)
-		{
-			WaitForSingleObject(ghMutex, INFINITE);
-
-			printf("Gracz %d pobiera dane.\n", number);
-			sendCoeff(sock);
-			printf("Gracz %d konczy pobierac dane.\n", number);
-
-			ReleaseMutex(ghMutex);
-		}
-
-		else if (strcmp(buf, "UpTrue") == 0)
-		{
-			direction[up] = 1;
-		}
-		else if (strcmp(buf, "DownTrue") == 0)
-		{
-			direction[down] = 1;
-		}
-		else if (strcmp(buf, "LeftTrue") == 0)
-		{
-			direction[left] = 1;
-		}
-		else if (strcmp(buf, "RightTrue") == 0)
-		{
-			direction[right] = 1;
-		}
-
-		else if (strcmp(buf, "UpFalse") == 0)
-		{
-			direction[up] = 0;
-		}
-		else if (strcmp(buf, "DownFalse") == 0)
-		{
-			direction[down] = 0;
-		}
-		else if (strcmp(buf, "LeftFalse") == 0)
-		{
-			direction[left] = 0;
-		}
-		else if (strcmp(buf, "RightFalse") == 0)
-		{
-			direction[right] = 0;
-		}
-		else if (strcmp(buf, "End") == 0)
-		{
-			WaitForSingleObject(ghMutex, INFINITE);
-
-			printf("One out.\n");
-
-			ReleaseMutex(ghMutex);
-			closesocket(sock);
-			WSACleanup();
-			return 0;
-		}
-
-		double change = 0.5;
-		double deltaMove = 8;
-		if (direction[up] == 1)
-		{
-			WaitForSingleObject(ghMutex, INFINITE);
-			if (number < PLAYERS_IN_TEAM)
-			{
-				for (double i = 0; i < deltaMove; i += change)
-					redTeam->GetPlayers()[number]->AddY(-change);
+				ReleaseMutex(ghMutex);
 			}
 
-			else
+			else if (strcmp(buf, "UpTrue") == 0)
 			{
-				for (double i = 0; i < deltaMove; i += change)
-					blueTeam->GetPlayers()[number - PLAYERS_IN_TEAM]->AddY(-change);
+				direction[up] = 1;
 			}
-			ReleaseMutex(ghMutex);
-		}
-		if (direction[down] == 1)
-		{
-			WaitForSingleObject(ghMutex, INFINITE);
-			if (number < PLAYERS_IN_TEAM)
+			else if (strcmp(buf, "DownTrue") == 0)
 			{
-				for (double i = 0; i < deltaMove; i += change)
-					redTeam->GetPlayers()[number]->AddY(change);
+				direction[down] = 1;
 			}
-
-			else
+			else if (strcmp(buf, "LeftTrue") == 0)
 			{
-				for (double i = 0; i < deltaMove; i += change)
-					blueTeam->GetPlayers()[number - PLAYERS_IN_TEAM]->AddY(change);
+				direction[left] = 1;
 			}
-			ReleaseMutex(ghMutex);
-		}
-		if (direction[left] == 1)
-		{
-			WaitForSingleObject(ghMutex, INFINITE);
-			if (number < PLAYERS_IN_TEAM)
+			else if (strcmp(buf, "RightTrue") == 0)
 			{
-				for (double i = 0; i < deltaMove; i += change)
-					redTeam->GetPlayers()[number]->AddX(-change);
+				direction[right] = 1;
 			}
 
-			else
+			else if (strcmp(buf, "UpFalse") == 0)
 			{
-				for (double i = 0; i < deltaMove; i += change)
-					blueTeam->GetPlayers()[number - PLAYERS_IN_TEAM]->AddX(-change);
+				direction[up] = 0;
 			}
-			ReleaseMutex(ghMutex);
-		}
-		if (direction[right] == 1)
-		{
-			WaitForSingleObject(ghMutex,INFINITE);
-			if (number < PLAYERS_IN_TEAM)
+			else if (strcmp(buf, "DownFalse") == 0)
 			{
-				for (double i = 0; i < deltaMove; i += change)
-					redTeam->GetPlayers()[number]->AddX(change);
+				direction[down] = 0;
+			}
+			else if (strcmp(buf, "LeftFalse") == 0)
+			{
+				direction[left] = 0;
+			}
+			else if (strcmp(buf, "RightFalse") == 0)
+			{
+				direction[right] = 0;
+			}
+			else if (strcmp(buf, "End") == 0)
+			{
+				WaitForSingleObject(ghMutex, INFINITE);
+
+				printf("One out.\n");
+
+				ReleaseMutex(ghMutex);
+				closesocket(sock);
+				WSACleanup();
+				return 0;
 			}
 
-			else
+			if (direction[up] == 1)
 			{
-				for (double i = 0; i < deltaMove; i += change)
-					blueTeam->GetPlayers()[number - PLAYERS_IN_TEAM]->AddX(change);
+				WaitForSingleObject(ghMutex, INFINITE);
+				if (number < PLAYERS_IN_TEAM)
+				{
+					for (double i = 0; i < MOVE_DELTA; i += MOVE_CHANGE)
+						redTeam->GetPlayers()[number]->AddY(-MOVE_CHANGE);
+				}
+
+				else
+				{
+					for (double i = 0; i < MOVE_DELTA; i += MOVE_CHANGE)
+						blueTeam->GetPlayers()[number - PLAYERS_IN_TEAM]->AddY(-MOVE_CHANGE);
+				}
+				ReleaseMutex(ghMutex);
 			}
-			ReleaseMutex(ghMutex);
+			if (direction[down] == 1)
+			{
+				WaitForSingleObject(ghMutex, INFINITE);
+				if (number < PLAYERS_IN_TEAM)
+				{
+					for (double i = 0; i < MOVE_DELTA; i += MOVE_CHANGE)
+						redTeam->GetPlayers()[number]->AddY(MOVE_CHANGE);
+				}
+
+				else
+				{
+					for (double i = 0; i < MOVE_DELTA; i += MOVE_CHANGE)
+						blueTeam->GetPlayers()[number - PLAYERS_IN_TEAM]->AddY(MOVE_CHANGE);
+				}
+				ReleaseMutex(ghMutex);
+			}
+			if (direction[left] == 1)
+			{
+				WaitForSingleObject(ghMutex, INFINITE);
+				if (number < PLAYERS_IN_TEAM)
+				{
+					for (double i = 0; i < MOVE_DELTA; i += MOVE_CHANGE)
+						redTeam->GetPlayers()[number]->AddX(-MOVE_CHANGE);
+				}
+
+				else
+				{
+					for (double i = 0; i < MOVE_DELTA; i += MOVE_CHANGE)
+						blueTeam->GetPlayers()[number - PLAYERS_IN_TEAM]->AddX(-MOVE_CHANGE);
+				}
+				ReleaseMutex(ghMutex);
+			}
+			if (direction[right] == 1)
+			{
+				WaitForSingleObject(ghMutex, INFINITE);
+				if (number < PLAYERS_IN_TEAM)
+				{
+					for (double i = 0; i < MOVE_DELTA; i += MOVE_CHANGE)
+						redTeam->GetPlayers()[number]->AddX(MOVE_CHANGE);
+				}
+
+				else
+				{
+					for (double i = 0; i < MOVE_DELTA; i += MOVE_CHANGE)
+						blueTeam->GetPlayers()[number - PLAYERS_IN_TEAM]->AddX(MOVE_CHANGE);
+				}
+				ReleaseMutex(ghMutex);
+			}
 		}
 	}
 	printf("One out.\n");
@@ -258,17 +258,17 @@ int main()
 
 	result = listen(s, PLAYERS_IN_TEAM * 2 + 1);
 
-	
+
 	while (1)
 	{
 
 		lenc = sizeof(sc);
 		si[order] = accept(s, (struct sockaddr FAR *) &sc, &lenc);
-			
+
 		DWORD dwThreadId;
 		dane[order].numer = order;
 		dane[order].s = si[order];
-		HANDLE h = CreateThread(NULL, 0, connection, (void *)&dane[order], 0,&dwThreadId);
+		HANDLE h = CreateThread(NULL, 0, connection, (void *)&dane[order], 0, &dwThreadId);
 	}
 
 	CloseHandle(ghMutex);

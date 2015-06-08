@@ -33,7 +33,8 @@
 
 #define PLAYERS_IN_TEAM 2
 
-#define FPS 140
+#define MOVE_CHANGE 0.2
+#define MOVE_DELTA 3.8
 
 enum Squad
 {
