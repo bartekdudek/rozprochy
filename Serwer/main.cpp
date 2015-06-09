@@ -1,5 +1,18 @@
 #include "Main.h"
 
+double fsign(double v)
+{
+	if (v < 0)
+	{
+		return MINUS_ONE;
+	}
+	else
+	{
+		return PLUS_ONE;
+	}
+
+}
+
 void sendCoeff(SOCKET sock)
 {
 	int i = 0;
@@ -21,9 +34,9 @@ void sendCoeff(SOCKET sock)
 		send(sock, tempString, STRING_SIZE, 0);
 	}
 
-	sprintf(tempString, "%f", ball->getX());
+	sprintf(tempString, "%f", ball->GetX());
 	send(sock, tempString, STRING_SIZE, 0);
-	sprintf(tempString, "%f", ball->getY());
+	sprintf(tempString, "%f", ball->GetY());
 	send(sock, tempString, STRING_SIZE, 0);
 
 	sprintf(tempString, "%f", redTeam->GetScore());
@@ -33,64 +46,70 @@ void sendCoeff(SOCKET sock)
 
 }
 
-void movePlayers(int number, int direction[4])
+void movePlayers(int number, int direction[4], int& kick)
 {
-	if (direction[up] == 1)
+	if (kick == 0)
 	{
-		if (number < PLAYERS_IN_TEAM)
+		if (direction[up] == 1)
 		{
-			for (double i = 0; i < MOVE_DELTA; i += MOVE_CHANGE)
-				redTeam->GetPlayers()[number]->AddY(-MOVE_CHANGE);
-		}
+			if (number < PLAYERS_IN_TEAM)
+			{
+				for (double i = 0; i < MOVE_DELTA; i += MOVE_CHANGE)
+					redTeam->GetPlayers()[number]->AddY(-MOVE_CHANGE, redTeam, blueTeam, ball);
+			}
 
-		else
+			else
+			{
+				for (double i = 0; i < MOVE_DELTA; i += MOVE_CHANGE)
+					blueTeam->GetPlayers()[number - PLAYERS_IN_TEAM]->AddY(-MOVE_CHANGE, redTeam, blueTeam, ball);
+			}
+		}
+		if (direction[down] == 1)
 		{
-			for (double i = 0; i < MOVE_DELTA; i += MOVE_CHANGE)
-				blueTeam->GetPlayers()[number - PLAYERS_IN_TEAM]->AddY(-MOVE_CHANGE);
+			if (number < PLAYERS_IN_TEAM)
+			{
+				for (double i = 0; i < MOVE_DELTA; i += MOVE_CHANGE)
+					redTeam->GetPlayers()[number]->AddY(MOVE_CHANGE, redTeam, blueTeam, ball);
+			}
+
+			else
+			{
+				for (double i = 0; i < MOVE_DELTA; i += MOVE_CHANGE)
+					blueTeam->GetPlayers()[number - PLAYERS_IN_TEAM]->AddY(MOVE_CHANGE, redTeam, blueTeam, ball);
+			}
+		}
+		if (direction[left] == 1)
+		{
+			if (number < PLAYERS_IN_TEAM)
+			{
+				for (double i = 0; i < MOVE_DELTA; i += MOVE_CHANGE)
+					redTeam->GetPlayers()[number]->AddX(-MOVE_CHANGE, redTeam, blueTeam, ball);
+			}
+
+			else
+			{
+				for (double i = 0; i < MOVE_DELTA; i += MOVE_CHANGE)
+					blueTeam->GetPlayers()[number - PLAYERS_IN_TEAM]->AddX(-MOVE_CHANGE, redTeam, blueTeam, ball);
+			}
+		}
+		if (direction[right] == 1)
+		{
+			if (number < PLAYERS_IN_TEAM)
+			{
+				for (double i = 0; i < MOVE_DELTA; i += MOVE_CHANGE)
+					redTeam->GetPlayers()[number]->AddX(MOVE_CHANGE, redTeam, blueTeam, ball);
+			}
+
+			else
+			{
+				for (double i = 0; i < MOVE_DELTA; i += MOVE_CHANGE)
+					blueTeam->GetPlayers()[number - PLAYERS_IN_TEAM]->AddX(MOVE_CHANGE, redTeam, blueTeam, ball);
+			}
 		}
 	}
-	if (direction[down] == 1)
-	{
-		if (number < PLAYERS_IN_TEAM)
-		{
-			for (double i = 0; i < MOVE_DELTA; i += MOVE_CHANGE)
-				redTeam->GetPlayers()[number]->AddY(MOVE_CHANGE);
-		}
 
-		else
-		{
-			for (double i = 0; i < MOVE_DELTA; i += MOVE_CHANGE)
-				blueTeam->GetPlayers()[number - PLAYERS_IN_TEAM]->AddY(MOVE_CHANGE);
-		}
-	}
-	if (direction[left] == 1)
-	{
-		if (number < PLAYERS_IN_TEAM)
-		{
-			for (double i = 0; i < MOVE_DELTA; i += MOVE_CHANGE)
-				redTeam->GetPlayers()[number]->AddX(-MOVE_CHANGE);
-		}
-
-		else
-		{
-			for (double i = 0; i < MOVE_DELTA; i += MOVE_CHANGE)
-				blueTeam->GetPlayers()[number - PLAYERS_IN_TEAM]->AddX(-MOVE_CHANGE);
-		}
-	}
-	if (direction[right] == 1)
-	{
-		if (number < PLAYERS_IN_TEAM)
-		{
-			for (double i = 0; i < MOVE_DELTA; i += MOVE_CHANGE)
-				redTeam->GetPlayers()[number]->AddX(MOVE_CHANGE);
-		}
-
-		else
-		{
-			for (double i = 0; i < MOVE_DELTA; i += MOVE_CHANGE)
-				blueTeam->GetPlayers()[number - PLAYERS_IN_TEAM]->AddX(MOVE_CHANGE);
-		}
-	}
+	kick = 0;
+	ball->MoveBall(redTeam, blueTeam);
 }
 
 DWORD WINAPI connection(void *argumenty)
@@ -99,10 +118,14 @@ DWORD WINAPI connection(void *argumenty)
 	char tempString[STRING_SIZE];
 	char team[STRING_SIZE];
 
+	int kick;
+
 	struct dane_dla_watku *moje_dane = (struct dane_dla_watku *)argumenty;
 	SOCKET sock = moje_dane->s;
 	int number = moje_dane->numer;
 	int direction[4] = { 0, 0, 0, 0 };
+
+	kick = 0;
 
 	while (1)
 	{
@@ -157,7 +180,15 @@ DWORD WINAPI connection(void *argumenty)
 				WaitForSingleObject(ghMutex, INFINITE);
 
 				direction[up] = 1;
+				if (number < PLAYERS_IN_TEAM)
+				{
+					redTeam->GetPlayers()[number]->SetHorizontally(true, -1.0);
+				}
 
+				else
+				{
+					blueTeam->GetPlayers()[number - PLAYERS_IN_TEAM]->SetHorizontally(true, -1.0);
+				}
 				ReleaseMutex(ghMutex);
 			}
 			else if (strcmp(buf, "DownTrue") == 0)
@@ -165,7 +196,15 @@ DWORD WINAPI connection(void *argumenty)
 				WaitForSingleObject(ghMutex, INFINITE);
 
 				direction[down] = 1;
+				if (number < PLAYERS_IN_TEAM)
+				{
+					redTeam->GetPlayers()[number]->SetHorizontally(true, 1.0);
+				}
 
+				else
+				{
+					blueTeam->GetPlayers()[number - PLAYERS_IN_TEAM]->SetHorizontally(true, 1.0);
+				}
 				ReleaseMutex(ghMutex);
 			}
 			else if (strcmp(buf, "LeftTrue") == 0)
@@ -190,6 +229,16 @@ DWORD WINAPI connection(void *argumenty)
 				WaitForSingleObject(ghMutex, INFINITE);
 
 				direction[up] = 0;
+
+				if (number < PLAYERS_IN_TEAM)
+				{
+					redTeam->GetPlayers()[number]->SetHorizontally(false, NULL);
+				}
+
+				else
+				{
+					blueTeam->GetPlayers()[number - PLAYERS_IN_TEAM]->SetHorizontally(false, NULL);
+				}
 				
 				ReleaseMutex(ghMutex);
 			}
@@ -198,6 +247,16 @@ DWORD WINAPI connection(void *argumenty)
 				WaitForSingleObject(ghMutex, INFINITE);
 
 				direction[down] = 0;
+
+				if (number < PLAYERS_IN_TEAM)
+				{
+					redTeam->GetPlayers()[number]->SetHorizontally(false, NULL);
+				}
+
+				else
+				{
+					blueTeam->GetPlayers()[number - PLAYERS_IN_TEAM]->SetHorizontally(false, NULL);
+				}
 
 				ReleaseMutex(ghMutex);
 			}
@@ -227,10 +286,28 @@ DWORD WINAPI connection(void *argumenty)
 				ReleaseMutex(ghMutex);
 				return 0;
 			}
+			else if (strcmp(buf, "Kick") == 0)
+			{
+				WaitForSingleObject(ghMutex, INFINITE);
+
+				if (number < PLAYERS_IN_TEAM)
+				{
+					redTeam->GetPlayers()[number]->Kicked(ball);
+				}
+
+				else
+				{
+					blueTeam->GetPlayers()[number - PLAYERS_IN_TEAM]->Kicked(ball);
+				}
+
+				kick = 1;
+
+				ReleaseMutex(ghMutex);
+			}
 
 			WaitForSingleObject(ghMutex, INFINITE);
 
-			movePlayers(number, direction);
+			movePlayers(number, direction, kick);
 
 			ReleaseMutex(ghMutex);
 		}
@@ -249,7 +326,7 @@ int main()
 	redTeam = new Team(red);
 	blueTeam = new Team(blue);
 
-	ball = new Ball(490, 245 + (WINDOW_HEIGHT - COURT_HEIGHT));
+	ball = new Ball(491, 245 + (WINDOW_HEIGHT - COURT_HEIGHT));
 
 	wersja = MAKEWORD(1, 1);
 	result = WSAStartup(wersja, &wsas);

@@ -5,6 +5,7 @@
 #include <windows.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
 
 #define WINDOW_WIDTH 982
 #define WINDOW_HEIGHT 600
@@ -35,10 +36,17 @@
 
 #define STRING_SIZE 80
 
+#define MINUS_ONE -1.0
+#define PLUS_ONE   1.0
+
+#define KICK_CHANGE   3.0
+#define KICK_DISTANCE 10.0
+
 enum Squad
 {
 	red,
-	blue
+	blue,
+	SQUAD_NR_ITEMS
 };
 
 enum Order
@@ -61,4 +69,10 @@ enum Direction
 	right,
 	up,
 	down
+};
+
+enum Direction2
+{
+	horizontal,
+	vertical
 };

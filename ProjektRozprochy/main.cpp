@@ -220,6 +220,13 @@ int main()
 
 					ReleaseMutex(ghMutex);
 					break;
+				case ALLEGRO_KEY_SPACE:
+					WaitForSingleObject(ghMutex, INFINITE);
+
+					send(s, "Kick", STRING_SIZE, 0);
+
+					ReleaseMutex(ghMutex);
+					break;
 				}
 			}
 			if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
