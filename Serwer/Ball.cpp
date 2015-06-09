@@ -33,31 +33,32 @@ void Ball::MoveBall(Team* redTeam, Team* blueTeam)
 	double coeff_a = NULL;
 	double coeff_b = NULL;
 	double dist_simple_to_point = NULL;
+		if (y + vy > Y_DOWN_BOUNDRY) {
+			this->y = Y_DOWN_BOUNDRY - MOVE_CHANGE;
+			vy *= -1.0;
+		}
+		else if (y + vy < Y_UP_BOUNDRY) {
+			this->y = Y_UP_BOUNDRY + MOVE_CHANGE;
+			vy *= -1.0;
+		}
+		else {
+			this->y += vy;
+		}
 
-	if (y + vy > Y_DOWN_BOUNDRY) {
-		this->y = Y_DOWN_BOUNDRY - MOVE_CHANGE;
-		vy *= -1.0;
-	}
-	else if (y + vy < Y_UP_BOUNDRY) {
-		this->y = Y_UP_BOUNDRY + MOVE_CHANGE;
-		vy *= -1.0;
-	}
-	else {
-		this->y += vy;
-	}
+		if (x + vx > X_RIGHT_BOUNDRY) {
+			this->x = X_RIGHT_BOUNDRY - MOVE_CHANGE;
+			vx *= -1.0;
+		}
+		else if (x + vx < X_LEFT_BOUNDRY) {
+			this->x = X_LEFT_BOUNDRY + MOVE_CHANGE;
+			vx *= -1.0;
+		}
+		else {
+			this->x += vx;
+		}
 
-	if (x + vx > X_RIGHT_BOUNDRY) {
-		this->x = X_RIGHT_BOUNDRY - MOVE_CHANGE;
-		vx *= -1.0;
-	}
-	else if (x + vx < X_LEFT_BOUNDRY) {
-		this->x = X_LEFT_BOUNDRY + MOVE_CHANGE;
-		vx *= -1.0;
-	}
-	else {
-		this->x += vx;
-	}
-	v -= 0.02;
+	v /= 1.004;
+
 	if (v < 0) {
 		v = 0;
 		vy = 0;
@@ -155,10 +156,10 @@ void Ball::SetSpeed(double vy, double vx, int direction, bool kicked)
 	}
 	if (angle < 0)
 		angle *= -1.0;
-	v = MOVE_DELTA;
+	v = MOVE_CHANGE;
 
 	if (kicked == true){
-		v = MOVE_DELTA + KICK_CHANGE;
+		v = MOVE_CHANGE*6.0;
 	}
 }
 

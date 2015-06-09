@@ -116,13 +116,13 @@ void Player::AddX(double a, Team* redTeam, Team* blueTeam, Ball* ball)
 
 		if (horizontally == true && fabs(delta_y) > fabs(delta_x) && near_the_boundry == false) {
 			if (fsign(delta_y) == ysign) {
-				ball->SetSpeed((delta_y)*DIRECTING_COEFF, delta_x, vertical, false);
+				ball->SetSpeed((delta_y)*DIRECTING_COEFF, delta_x, horizontal, false);
 			}
 			else if (fsign(delta_y) != ysign && fabs(delta_y) <= BALL_SIZE / 2.0 + PLAYER_SIZE / 2.0) {
-				ball->SetSpeed(0, delta_x, vertical, false);
+				ball->SetSpeed(0, delta_x, horizontal, false);
 			}
 			else {
-				ball->SetSpeed(delta_y, delta_x, vertical, false);
+				ball->SetSpeed(delta_y, delta_x, horizontal, false);
 			}
 		}
 		else if (horizontally == true && fabs(delta_y) < fabs(delta_x) && near_the_boundry == false) {
