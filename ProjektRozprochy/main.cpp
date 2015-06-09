@@ -99,12 +99,14 @@ int main()
 	sa.sin_addr.s_addr = inet_addr("127.0.0.1"); //testowe
 	//sa.sin_addr.s_addr = inet_addr("192.168.1.102");
 
+	al_clear_to_color(al_map_rgb(204, 153, 255));
+	al_draw_text(font, al_map_rgb(0, 0, 0), WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2.5, 0, "No connection!");
+	al_flip_display();
+
 	result = connect(s, (struct sockaddr FAR *) &sa, sizeof(sa));
 	if (result == SOCKET_ERROR)
 	{
-		al_clear_to_color(al_map_rgb(204, 153, 255));
-		al_draw_text(font, al_map_rgb(255, 0, 0), 0, 20, 0, "No connection!");
-		al_flip_display();
+		return 0;
 	}
 
 	send(s, "Initialize", STRING_SIZE, 0);
@@ -173,7 +175,7 @@ int main()
 				{
 					ok = false;
 					al_clear_to_color(al_map_rgb(204, 153, 255));
-					al_draw_text(font, al_map_rgb(255, 0, 0), 0, 20, 0, "Waiting for other players...");
+					al_draw_text(font, al_map_rgb(0, 0, 0), WINDOW_WIDTH / 12, WINDOW_HEIGHT / 2.5, 0, "Waiting for other players...");
 					al_flip_display();
 				}
 
