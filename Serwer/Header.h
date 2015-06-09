@@ -31,8 +31,8 @@
 
 #define PLAYERS_IN_TEAM 2
 
-#define MOVE_CHANGE 0.75
-#define MOVE_DELTA 7.0
+#define MOVE_CHANGE 0.5
+#define MOVE_DELTA 5.0
 
 #define STRING_SIZE 80
 
@@ -41,6 +41,8 @@
 
 #define KICK_CHANGE   3.0
 #define KICK_DISTANCE 10.0
+
+#define DIRECTING_COEFF 3.0
 
 enum Squad
 {
