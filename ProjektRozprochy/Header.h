@@ -15,7 +15,7 @@
 #define WINDOW_WIDTH 982
 #define WINDOW_HEIGHT 600
 
-#define PLAYER_SIZE 50
+#define PLAYER_SIZE 35
 #define BALL_SIZE 35
 
 #define FPS 80.0
