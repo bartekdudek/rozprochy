@@ -38,6 +38,8 @@
 #define FPS 80.0
 #define LPS 25.0 //loads per second
 
+#define STRING_SIZE 80
+
 enum Squad
 {
 	red,

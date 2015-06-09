@@ -1,7 +1,4 @@
 #pragma once
-#ifdef _MSC_VER
-#define _CRT_SECURE_NO_WARNINGS
-#endif
 
 #include <stdio.h>
 #include <winsock.h>
@@ -33,8 +30,10 @@
 
 #define PLAYERS_IN_TEAM 2
 
-#define MOVE_CHANGE 0.2
-#define MOVE_DELTA 3.8
+#define MOVE_CHANGE 0.75
+#define MOVE_DELTA 7.0
+
+#define STRING_SIZE 80
 
 enum Squad
 {
