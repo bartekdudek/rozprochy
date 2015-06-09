@@ -34,3 +34,6 @@ Team* blueTeam;
 Ball* ball;
 
 HANDLE ghMutex;
+
+bool over = false;
+char winningTeam[10];

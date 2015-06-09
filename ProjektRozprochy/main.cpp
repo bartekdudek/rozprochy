@@ -35,6 +35,7 @@ int main()
 
 	bool run;
 	bool ok;
+	bool over;
 
 	char tmp[STRING_SIZE];
 
@@ -56,6 +57,8 @@ int main()
 	char redScoreString[10];
 	char blueScoreString[10];
 
+	char winningTeam[10];
+
 	al_init();
 	al_install_keyboard();
 	al_install_mouse();
@@ -70,6 +73,7 @@ int main()
 
 	run = true;
 	ok = false;
+	over = false;
 
 	window = al_create_display(WINDOW_WIDTH, WINDOW_HEIGHT);
 	al_set_window_title(window, "HaxBall");
@@ -180,7 +184,7 @@ int main()
 		}
 		else
 		{
-			if (event.type == ALLEGRO_EVENT_KEY_DOWN)
+			if (event.type == ALLEGRO_EVENT_KEY_DOWN && over == false)
 			{
 				switch (event.keyboard.keycode)
 				{
@@ -274,13 +278,22 @@ int main()
 				}
 			}
 
-			if (event.timer.source == loadingTimer)
+			if (event.timer.source == loadingTimer && over == false)
 			{
 				WaitForSingleObject(ghMutex, INFINITE);
 
 				send(s, "GetCoeff", STRING_SIZE, 0);
-				receiveCoeffs(s, images);
-
+				recv(s, tmp, STRING_SIZE, 0);
+				if (strcmp(tmp, "GAMEOVER") == 0)
+				{
+					recv(s, tmp, STRING_SIZE, 0);
+					strcpy(winningTeam, tmp);
+					over = true;
+				}
+				else
+				{
+					receiveCoeffs(s, images);
+				}
 				ReleaseMutex(ghMutex);
 			}
 			else if (event.timer.source == mainTimer)
@@ -298,6 +311,14 @@ int main()
 
 				for (i = 0; i < (numberOfPlayersInTeam * 2 + 1); i++)
 					images[i]->Draw();
+
+				if (over == true)
+				{
+					if (strcmp(winningTeam, "red") == 0)
+						al_draw_text(font, al_map_rgb(0, 0, 0), WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2, 0, "Red team wins!");
+					else if (strcmp(winningTeam, "blue") == 0)
+						al_draw_text(font, al_map_rgb(0, 0, 0), WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2, 0, "Blue team wins!");
+				}
 
 				al_flip_display();
 			}

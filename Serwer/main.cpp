@@ -43,7 +43,6 @@ void sendCoeff(SOCKET sock)
 	send(sock, tempString, STRING_SIZE, 0);
 	sprintf(tempString, "%f", blueTeam->GetScore());
 	send(sock, tempString, STRING_SIZE, 0);
-
 }
 
 void movePlayers(int number, int direction[4], int& kick)
@@ -170,7 +169,18 @@ DWORD WINAPI connection(void *argumenty)
 			{
 				WaitForSingleObject(ghMutex, INFINITE);
 
-				sendCoeff(sock);
+				if (over == true)
+				{
+					send(sock, "GAMEOVER", STRING_SIZE, 0);
+					strcpy(tempString, winningTeam);
+					send(sock, tempString, STRING_SIZE, 0);
+				}
+
+				else
+				{
+					send(sock, "GAMENOTOVER", STRING_SIZE, 0);
+					sendCoeff(sock);
+				}
 
 				ReleaseMutex(ghMutex);
 			}
@@ -279,9 +289,14 @@ DWORD WINAPI connection(void *argumenty)
 			else if (strcmp(buf, "End") == 0)
 			{
 				WaitForSingleObject(ghMutex, INFINITE);
+
+				over = true;
+				if (number < PLAYERS_IN_TEAM)
+					strcpy(winningTeam, "blue");
+				else
+					strcpy(winningTeam, "red");
 				
 				closesocket(sock);
-				WSACleanup();
 
 				ReleaseMutex(ghMutex);
 				return 0;
@@ -313,7 +328,6 @@ DWORD WINAPI connection(void *argumenty)
 		}
 	}
 	closesocket(sock);
-	WSACleanup();
 	return 0;
 }
 
@@ -361,6 +375,8 @@ int main()
 	delete ball;
 	delete blueTeam;
 	delete redTeam;
+
+	WSACleanup();
 
 	return 0;
 }
