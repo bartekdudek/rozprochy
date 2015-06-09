@@ -1,32 +1,22 @@
-#include "Header.h"
-#include "Team.h"
-#include "Ball.h"
-#include <winsock.h>
+#include "Main.h"
 
-
-void receiveCoeffs(SOCKET s, Team* redTeam, Team* blueTeam)
+void receiveCoeffs(SOCKET s, Image** images)
 {
 	int i;
 	char tmp[STRING_SIZE];
 
-	if (tmp)
+	for (i = 0; i < (numberOfPlayersInTeam*2 + 1); i++)
 	{
-		for (i = 0; i < PLAYERS_IN_TEAM; i++)
-		{
-			recv(s, tmp, STRING_SIZE, 0);
-			redTeam->GetPlayers()[i]->SetX(atof(tmp));
-			recv(s, tmp, STRING_SIZE, 0);
-			redTeam->GetPlayers()[i]->SetY(atof(tmp));
-		}
-
-		for (i = 0; i < PLAYERS_IN_TEAM; i++)
-		{
-			recv(s, tmp, STRING_SIZE, 0);
-			blueTeam->GetPlayers()[i]->SetX(atof(tmp));
-			recv(s, tmp, STRING_SIZE, 0);
-			blueTeam->GetPlayers()[i]->SetY(atof(tmp));
-		}
+		recv(s, tmp, STRING_SIZE, 0);
+		images[i]->setX(atof(tmp));
+		recv(s, tmp, STRING_SIZE, 0);
+		images[i]->setY(atof(tmp));
 	}
+
+	recv(s, tmp, STRING_SIZE, 0);
+	redScore = atoi(tmp);
+	recv(s, tmp, STRING_SIZE, 0);
+	blueScore = atoi(tmp);
 }
 
 int main()
@@ -35,7 +25,6 @@ int main()
 
 	ALLEGRO_MOUSE_STATE mouse;
 	ALLEGRO_EVENT_QUEUE *event_queue;
-	ALLEGRO_TIMER *timer;
 	ALLEGRO_EVENT event;
 
 	ALLEGRO_BITMAP* court;
@@ -49,10 +38,6 @@ int main()
 
 	char tmp[STRING_SIZE];
 
-	Team* redTeam;
-	Team* blueTeam;
-	Ball* ball;
-
 	int order;
 	Squad team;
 
@@ -64,8 +49,13 @@ int main()
 	WORD wersja;
 	int result;
 
+	Image** images;
 
-	srand(time(NULL));
+	int i, j;
+
+	char redScoreString[10];
+	char blueScoreString[10];
+
 	al_init();
 	al_install_keyboard();
 	al_install_mouse();
@@ -91,12 +81,9 @@ int main()
 	al_register_event_source(event_queue, al_get_timer_event_source(loadingTimer));
 	al_register_event_source(event_queue, al_get_display_event_source(window));
 
-	court = al_load_bitmap("court.png");
-	font = al_load_ttf_font("Dolce_Vita.ttf", 72, 30);
+	court = al_load_bitmap("Resources/court.png");
+	font = al_load_ttf_font("Resources/Dolce_Vita.ttf", 72, 30);
 
-	redTeam = new Team(red);
-	blueTeam = new Team(blue);
-	ball = new Ball(490, 245 + (WINDOW_HEIGHT - COURT_HEIGHT));
 
 	wersja = MAKEWORD(2, 0);
 	WSAStartup(wersja, &wsas);
@@ -117,6 +104,10 @@ int main()
 	}
 
 	send(s, "Initialize", STRING_SIZE, 0);
+
+	recv(s, tmp, STRING_SIZE, 0);
+	numberOfPlayersInTeam = atoi(tmp);
+
 	recv(s, tmp, STRING_SIZE, 0);
 	order = atoi(tmp);
 
@@ -126,6 +117,18 @@ int main()
 		team = red;
 	else
 		team = blue;
+
+	
+	images = new Image*[numberOfPlayersInTeam * 2 + 1];
+
+	j = 0;
+	for (i = 0; i < numberOfPlayersInTeam; i++, j++)
+		images[j] = new Image(redPlayer, PLAYER_SIZE);
+	for (i = 0; i < numberOfPlayersInTeam; i++, j++)
+		images[j] = new Image(bluePlayer, PLAYER_SIZE);
+
+	images[j] = new Image(ball, BALL_SIZE);
+
 
 
 	al_start_timer(mainTimer);
@@ -139,7 +142,11 @@ int main()
 
 		if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
 		{
+			WaitForSingleObject(ghMutex, INFINITE);
+
 			send(s, "End", STRING_SIZE, 0);
+
+			ReleaseMutex(ghMutex);
 			run = false;
 		}
 
@@ -153,10 +160,10 @@ int main()
 				recv(s, tmp, STRING_SIZE, 0);
 
 				int a = atoi(tmp);
-				if (a == PLAYERS_IN_TEAM * 2)
+				if (a == numberOfPlayersInTeam * 2)
 				{
 					ok = true;
-					receiveCoeffs(s, redTeam, blueTeam);
+					receiveCoeffs(s, images);
 				}
 				else
 				{
@@ -217,7 +224,12 @@ int main()
 			}
 			if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
 			{
+				WaitForSingleObject(ghMutex, INFINITE);
+
 				send(s, "End", STRING_SIZE, 0);
+
+				ReleaseMutex(ghMutex);
+
 				run = false;
 			}
 			if (event.type == ALLEGRO_EVENT_KEY_UP)
@@ -260,7 +272,7 @@ int main()
 				WaitForSingleObject(ghMutex, INFINITE);
 
 				send(s, "GetCoeff", STRING_SIZE, 0);
-				receiveCoeffs(s, redTeam, blueTeam);
+				receiveCoeffs(s, images);
 
 				ReleaseMutex(ghMutex);
 			}
@@ -268,22 +280,17 @@ int main()
 			{
 				al_clear_to_color(al_map_rgb(204, 153, 255));
 
-				char *redScore = new char[10];
-				sprintf(redScore, "%d", redTeam->GetScore());
+				sprintf(redScoreString, "%d", redScore);
+				sprintf(blueScoreString, "%d", blueScore);
 
-				char *blueScore = new char[10];
-				sprintf(blueScore, "%d", blueTeam->GetScore());
-
-				al_draw_text(font, al_map_rgb(255, 0, 0), WINDOW_WIDTH / 2 - 70, 20, 0, redScore);
+				al_draw_text(font, al_map_rgb(255, 0, 0), WINDOW_WIDTH / 2 - 70, 20, 0, redScoreString);
 				al_draw_text(font, al_map_rgb(0, 0, 0), WINDOW_WIDTH / 2, 20, 0, ":");
-				al_draw_text(font, al_map_rgb(0, 0, 255), WINDOW_WIDTH / 2 + 50, 20, 0, blueScore);
+				al_draw_text(font, al_map_rgb(0, 0, 255), WINDOW_WIDTH / 2 + 50, 20, 0, blueScoreString);
 
 				al_draw_bitmap(court, 0, WINDOW_HEIGHT - 486, 0);
 
-				ball->DrawBall();
-				redTeam->DrawPlayers();
-				blueTeam->DrawPlayers();
-
+				for (i = 0; i < (numberOfPlayersInTeam * 2 + 1); i++)
+					images[i]->Draw();
 
 				al_flip_display();
 			}
@@ -292,9 +299,7 @@ int main()
 
 	CloseHandle(ghMutex);
 
-	delete ball;
-	delete blueTeam;
-	delete redTeam;
+	delete[] images;
 
 	al_destroy_event_queue(event_queue);
 	al_destroy_timer(mainTimer);

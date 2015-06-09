@@ -20,6 +20,17 @@ void sendCoeff(SOCKET sock)
 		sprintf(tempString, "%f", blueTeam->GetPlayers()[i]->GetY());
 		send(sock, tempString, STRING_SIZE, 0);
 	}
+
+	sprintf(tempString, "%f", ball->getX());
+	send(sock, tempString, STRING_SIZE, 0);
+	sprintf(tempString, "%f", ball->getY());
+	send(sock, tempString, STRING_SIZE, 0);
+
+	sprintf(tempString, "%f", redTeam->GetScore());
+	send(sock, tempString, STRING_SIZE, 0);
+	sprintf(tempString, "%f", blueTeam->GetScore());
+	send(sock, tempString, STRING_SIZE, 0);
+
 }
 
 void movePlayers(int number, int direction[4])
@@ -100,7 +111,8 @@ DWORD WINAPI connection(void *argumenty)
 			if (strcmp(buf, "Initialize") == 0)
 			{
 				WaitForSingleObject(ghMutex, INFINITE);
-
+				sprintf(tempString, "%d", PLAYERS_IN_TEAM);
+				send(sock, tempString, STRING_SIZE, 0);
 				order++;
 				printf("Hey! %d player(s) already!\n", order);
 				sprintf(tempString, "%d", order);

@@ -7,5 +7,7 @@ private:
 	double y;
 public:
 	Ball(double x, double y);
+	double getX();
+	double getY();
 };
 
