@@ -135,7 +135,7 @@ int main()
 
 	images[j] = new Image(ball, BALL_SIZE);
 
-
+	images[order - 1]->updateWithCurrentImage();
 
 	al_start_timer(mainTimer);
 	al_start_timer(loadingTimer);

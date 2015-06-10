@@ -12,6 +12,8 @@ public:
 	Image();
 	Image(Object r, int s, double x = 0, double y = 0);
 
+	void updateWithCurrentImage();
+
 	void Draw();
 
 	void setX(double x);

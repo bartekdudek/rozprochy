@@ -16,9 +16,9 @@ Image::Image(Object r, int s, double x, double y)
 	this->representation = r;
 	this->size = s;
 
-	if (representation == red)
+	if (representation == redPlayer)
 		this->bitmap = al_load_bitmap("Resources/redPlayer.png");
-	else if (representation == blue)
+	else if (representation == bluePlayer)
 		this->bitmap = al_load_bitmap("Resources/bluePlayer.png");
 	else if (representation == ball)
 		this->bitmap = al_load_bitmap("Resources/ball.png");
@@ -28,7 +28,6 @@ Image::Image(Object r, int s, double x, double y)
 	al_convert_mask_to_alpha(this->bitmap, al_map_rgb(255, 255, 0));
 
 }
-
 
 Image::~Image()
 {
@@ -51,4 +50,19 @@ void Image::setX(double x)
 void Image::setY(double y)
 {
 	this->y = y;
+}
+
+void Image::updateWithCurrentImage()
+{
+	if (representation == redPlayer)
+	{
+		this->bitmap = al_load_bitmap("Resources/currentRedPlayer.png");
+		al_convert_mask_to_alpha(this->bitmap, al_map_rgb(255, 255, 0));
+	}
+	else if (representation == bluePlayer)
+	{
+		this->bitmap = al_load_bitmap("Resources/currentBluePlayer.png");
+		al_convert_mask_to_alpha(this->bitmap, al_map_rgb(255, 255, 0));
+	}
+	
 }
