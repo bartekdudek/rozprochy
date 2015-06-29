@@ -63,8 +63,9 @@ void Player::AddX(double a, Team* redTeam, Team* blueTeam, Ball* ball)
 	double coeff_a = NULL;
 	double coeff_b = NULL;
 	double new_y = NULL;
-	double delta_y = ball->GetY() - y;
-	double delta_x = ball->GetX() - x;
+	double reduced_x = NULL; // its needed to fix the bug couses teleporting the ball
+	double delta_y = NULL;
+	double delta_x = NULL;
 	bool collision = false;
 	bool near_the_boundry = false;
 
@@ -86,10 +87,11 @@ void Player::AddX(double a, Team* redTeam, Team* blueTeam, Ball* ball)
 			else if (t == blue) {
 				temp = blueTeam->GetPlayers()[i];
 			}
-
+			delta_y = pow(fabs(temp->GetY() - y), 1.0/3.0);
 			distance = sqrt(pow(y - temp->GetY(), 2.0) + pow(x - temp->GetX(), 2.0));
+			reduced_x = x - (a / delta_y);
 			if (temp != this && distance < PLAYER_SIZE) {
-				shift = sqrt(pow(PLAYER_SIZE, 2.0) - pow(x - temp->GetX(), 2.0));
+				shift = sqrt(pow(PLAYER_SIZE, 2.0) - pow(reduced_x - temp->GetX(), 2.0));
 				temp_y = temp->GetY() - shift*fsign(temp->GetY() - y);
 
 				if (collision == false && temp_y >= Y_UP_BOUNDRY && temp_y <= Y_DOWN_BOUNDRY) {
@@ -97,11 +99,13 @@ void Player::AddX(double a, Team* redTeam, Team* blueTeam, Ball* ball)
 				}
 
 				shift = sqrt(pow(PLAYER_SIZE, 2.0) - pow(y - temp->GetY(), 2.0));
-				x = temp->GetX() - shift*fsign(temp->GetX() - x);
+				x = temp->GetX() - shift*fsign(temp->GetX() - reduced_x);
 				collision = true;
 			}
 		}
 	}
+	delta_y = ball->GetY() - y;
+	delta_x = ball->GetX() - x;
 	distance = sqrt(pow(y - ball->GetY(), 2.0) + pow(x - ball->GetX(), 2.0));
 	if (distance < PLAYER_SIZE / 2.0 + BALL_SIZE / 2.0)
 	{
@@ -150,7 +154,8 @@ void Player::AddY(double a, Team* redTeam, Team* blueTeam, Ball* ball)
 	double temp_x = NULL;
 	double coeff_a = NULL;
 	double coeff_b = NULL;
-	double new_x = NULL;
+	double delta_x = NULL;
+	double reduced_y = fabs(a);
 	bool collision = false;
 
 	if (y + a > Y_DOWN_BOUNDRY) {
@@ -173,9 +178,11 @@ void Player::AddY(double a, Team* redTeam, Team* blueTeam, Ball* ball)
 				temp = blueTeam->GetPlayers()[i];
 			}
 
+			delta_x = pow(fabs(temp->GetX() - x), 1.0/3.0);
 			distance = sqrt(pow(y - temp->GetY(), 2.0) + pow(x - temp->GetX(), 2.0));
+			reduced_y = y - (a / delta_x);
 			if (temp != this && distance < PLAYER_SIZE) {
-				shift = sqrt(pow(PLAYER_SIZE, 2.0) - pow(y - temp->GetY(), 2.0));
+				shift = sqrt(pow(PLAYER_SIZE, 2.0) - pow(reduced_y - temp->GetY(), 2.0));
 				temp_x = temp->GetX() - shift*fsign(temp->GetX() - x);
 
 				if (collision == false && temp_x >= X_LEFT_BOUNDRY && temp_x <= X_RIGHT_BOUNDRY) {
@@ -183,7 +190,7 @@ void Player::AddY(double a, Team* redTeam, Team* blueTeam, Ball* ball)
 				}
 
 				shift = sqrt(pow(PLAYER_SIZE, 2.0) - pow(x - temp->GetX(), 2.0));
-				y = temp->GetY() - shift*fsign(temp->GetY() - y);
+				y = temp->GetY() - shift*fsign(temp->GetY() - reduced_y);
 				collision = true;
 			}
 		}
@@ -201,7 +208,6 @@ void Player::AddY(double a, Team* redTeam, Team* blueTeam, Ball* ball)
 			ball->SetSpeed(ball->GetY() - y, 0, horizontal, false);
 		}
 		else {
-			new_x = (y + a - coeff_b) / coeff_a;
 			ball->SetSpeed(ball->GetY() - y, ball->GetX() - x, horizontal, false);
 		}
 	}

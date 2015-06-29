@@ -30,34 +30,86 @@ void Ball::MoveBall(Team* redTeam, Team* blueTeam)
 	double shift = NULL;
 	double temp_x = NULL;
 	double temp_y = NULL;
+	double delta_x = NULL;
+	double delta_y = NULL;
+	double reduced_x = NULL;
+	double reduced_y = NULL;
 	double coeff_a = NULL;
 	double coeff_b = NULL;
 	double dist_simple_to_point = NULL;
-		if (y + vy > Y_DOWN_BOUNDRY) {
-			this->y = Y_DOWN_BOUNDRY - MOVE_CHANGE;
-			vy *= -1.0;
-		}
-		else if (y + vy < Y_UP_BOUNDRY) {
-			this->y = Y_UP_BOUNDRY + MOVE_CHANGE;
-			vy *= -1.0;
-		}
-		else {
-			this->y += vy;
-		}
+	bool near_the_boundry = false;
 
-		if (x + vx > X_RIGHT_BOUNDRY) {
-			this->x = X_RIGHT_BOUNDRY - MOVE_CHANGE;
-			vx *= -1.0;
-		}
-		else if (x + vx < X_LEFT_BOUNDRY) {
-			this->x = X_LEFT_BOUNDRY + MOVE_CHANGE;
-			vx *= -1.0;
-		}
-		else {
+	if (x + vx > X_RIGHT_BOUNDRY) {
+		if (y < GOAL_DOWN_POST && y > GOAL_UP_POST && x + vx < X_RIGHT_BOUNDRY + GOAL_DEPTH){
 			this->x += vx;
 		}
+		else if (y < GOAL_DOWN_POST && y > GOAL_UP_POST && x + vx > X_RIGHT_BOUNDRY + GOAL_DEPTH){
+			this->x = this->x = X_RIGHT_BOUNDRY + GOAL_DEPTH - MOVE_CHANGE;
+			vx *= -1.0;
+			v /= SLOWING_BALL_COEFF*2;
+			near_the_boundry = true;
+		}
+		else{
+			this->x = X_RIGHT_BOUNDRY - MOVE_CHANGE;
+			vx *= -1.0;
+			v /= SLOWING_BALL_COEFF*2;
+			near_the_boundry = true;
+		}
+	}
+	else if (x + vx < X_LEFT_BOUNDRY) {
+		if (y < GOAL_DOWN_POST && y > GOAL_UP_POST && x + vx > X_LEFT_BOUNDRY - GOAL_DEPTH){
+			this->x += vx;
+		}
+		else if (y < GOAL_DOWN_POST && y > GOAL_UP_POST && x + vx < X_LEFT_BOUNDRY - GOAL_DEPTH){
+			this->x = this->x = X_LEFT_BOUNDRY - GOAL_DEPTH + MOVE_CHANGE;
+			vx *= -1.0;
+			v /= SLOWING_BALL_COEFF*2;
+			near_the_boundry = true;
+		}
+		else{
+			this->x = X_LEFT_BOUNDRY + MOVE_CHANGE;
+			vx *= -1.0;
+			v /= SLOWING_BALL_COEFF*2;
+			near_the_boundry = true;
+		}
+	}
+	else {
+		this->x += vx;
+	}
 
-	v /= 1.004;
+	if (y + vy > Y_DOWN_BOUNDRY) {
+		this->y = Y_DOWN_BOUNDRY - MOVE_CHANGE;
+		vy *= -1.0;
+		v /= SLOWING_BALL_COEFF*2;
+		near_the_boundry = true;
+	}
+	else if (y + vy < Y_UP_BOUNDRY) {
+		this->y = Y_UP_BOUNDRY + MOVE_CHANGE;
+		vy *= -1.0;
+		v /= SLOWING_BALL_COEFF*2;
+		near_the_boundry = true;
+	}
+	else {
+		if (x > X_RIGHT_BOUNDRY || x < X_LEFT_BOUNDRY){
+			if (y + vy > GOAL_DOWN_POST){
+				y = GOAL_DOWN_POST - MOVE_CHANGE;
+				vy *= -1.0;
+				v /= SLOWING_BALL_COEFF*2;
+				near_the_boundry = true;
+			} else if (y + vy < GOAL_UP_POST){
+				y = GOAL_UP_POST + MOVE_CHANGE;
+				vy *= -1.0;
+				v /= SLOWING_BALL_COEFF*2;
+				near_the_boundry = true;
+			} else {
+				this->y += vy;
+			}
+		} else {
+			this->y += vy;
+		}
+	}
+
+	v /= SLOWING_BALL_COEFF;
 
 	if (v < 0) {
 		v = 0;
@@ -73,30 +125,34 @@ void Ball::MoveBall(Team* redTeam, Team* blueTeam)
 			else if (t == blue) {
 				temp = blueTeam->GetPlayers()[i];
 			}
-
+			delta_y = pow(fabs(temp->GetY() - y), 1.0 / 3.0);
+			delta_x = pow(fabs(temp->GetX() - x), 1.0 / 3.0);
 			distance = sqrt(pow(y - temp->GetY(), 2.0) + pow(x - temp->GetX(), 2.0));
+			reduced_y = y - (vx / delta_x);
+			reduced_x = y - (vy / delta_y);
 			if (distance < PLAYER_SIZE / 2 + BALL_SIZE / 2) {
-				if (fabs(vy) > fabs(vx))
-				{
-					shift = sqrt(pow(PLAYER_SIZE, 2.0) - pow(y - temp->GetY(), 2.0));
+				if (fabs(vy) > fabs(vx)) {
+					shift = sqrt(pow(PLAYER_SIZE, 2.0) - pow(reduced_y - temp->GetY(), 2.0));
 					temp_x = temp->GetX() - shift*fsign(temp->GetX() - x);
+					if (collision == false && temp_x > X_LEFT_BOUNDRY && temp_x < X_RIGHT_BOUNDRY) {
+						x = temp_x;
+					}
 
 
 					shift = sqrt(pow(PLAYER_SIZE, 2.0) - pow(x - temp->GetX(), 2.0));
 					y = temp->GetY() - shift*fsign(temp->GetY() - y);
+					
+					collision = true;
 				}
 				else {
-					shift = sqrt(pow(PLAYER_SIZE, 2.0) - pow(y - temp->GetY(), 2.0));
-					temp_x = temp->GetX() - shift*fsign(temp->GetX() - x);
-					if (collision == false && temp_x >= X_LEFT_BOUNDRY && temp_x <= X_RIGHT_BOUNDRY) {
-						x = temp_x;
-					}
-
-					shift = sqrt(pow(PLAYER_SIZE, 2.0) - pow(x - temp->GetX(), 2.0));
+					shift = sqrt(pow(PLAYER_SIZE, 2.0) - pow(reduced_x - temp->GetX(), 2.0));
 					temp_y = temp->GetY() - shift*fsign(temp->GetY() - y);
-					if (collision == false && temp_y >= Y_UP_BOUNDRY && temp_y <= Y_DOWN_BOUNDRY) {
+					if (collision == false && temp_y > Y_UP_BOUNDRY && temp_y < Y_DOWN_BOUNDRY) {
 						y = temp_y;
 					}
+					shift = sqrt(pow(PLAYER_SIZE, 2.0) - pow(y - temp->GetY(), 2.0));
+					x = temp->GetX() - shift*fsign(temp->GetX() - x);
+
 					collision = true;
 				}
 				if (v > MOVE_CHANGE)
@@ -129,6 +185,11 @@ void Ball::MoveBall(Team* redTeam, Team* blueTeam)
 					v *= 0.5;
 				}
 				collision = true;
+				if (near_the_boundry == true){ 
+					v = 0;
+					vy = 0;
+					vx = 0;
+				}
 			}
 		}
 	}
@@ -149,17 +210,26 @@ void Ball::SetSpeed(double vy, double vx, int direction, bool kicked)
 	this->vy = fsign(vy);
 	this->vx = fsign(vx);
 	if (direction == horizontal) {
-		angle = atan(tan(vx / vy));
+		if (vy != 0) {
+			angle = atan(tan(vx / vy));
+		} else {
+			angle = 0;
+		}
 	}
 	else {
-		angle = atan(tan(vy / vx));
+		if (vx != 0) {
+			angle = atan(tan(vy / vx));
+		} else {
+			angle = 0;
+		}
 	}
 	if (angle < 0)
 		angle *= -1.0;
 	v = MOVE_CHANGE;
 
 	if (kicked == true){
-		v = MOVE_CHANGE*6.0;
+		v = MOVE_CHANGE_KICK;
 	}
 }
+
 
