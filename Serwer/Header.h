@@ -52,6 +52,10 @@
 
 #define DIRECTING_COEFF 4.0
 
+#define BALL_COUNTER 250
+
+#define WINNING_SCORE 3
+
 enum Squad
 {
 	red,

@@ -38,11 +38,6 @@ void sendCoeff(SOCKET sock)
 	send(sock, tempString, STRING_SIZE, 0);
 	sprintf(tempString, "%f", ball->GetY());
 	send(sock, tempString, STRING_SIZE, 0);
-
-	sprintf(tempString, "%f", redTeam->GetScore());
-	send(sock, tempString, STRING_SIZE, 0);
-	sprintf(tempString, "%f", blueTeam->GetScore());
-	send(sock, tempString, STRING_SIZE, 0);
 }
 
 void movePlayers(int number, int direction[4], int& kick)
@@ -108,7 +103,7 @@ void movePlayers(int number, int direction[4], int& kick)
 	}
 
 	kick = 0;
-	ball->MoveBall(redTeam, blueTeam);
+	ball->MoveBall(redTeam, blueTeam, &redScore, &blueScore);
 }
 
 DWORD WINAPI connection(void *argumenty)
@@ -169,10 +164,24 @@ DWORD WINAPI connection(void *argumenty)
 			{
 				WaitForSingleObject(ghMutex, INFINITE);
 
+				if (redScore >= WINNING_SCORE)
+				{
+					over = true;
+					strcpy(winningTeam, "red");
+				}
+
+				else if (blueScore >= WINNING_SCORE)
+				{
+					over = true;
+					strcpy(winningTeam, "blue");
+				}
+
 				sprintf(tempString, "%d", redScore);
 				send(sock, tempString, STRING_SIZE, 0);
 				sprintf(tempString, "%d", blueScore);
 				send(sock, tempString, STRING_SIZE, 0);
+
+
 
 				if (over == true)
 				{
@@ -355,7 +364,7 @@ int main()
 
 	memset((void *)(&sa), 0, sizeof(sa));
 	sa.sin_family = AF_INET;
-	sa.sin_port = htons(10000);
+	sa.sin_port = htons(1000);
 	sa.sin_addr.s_addr = htonl(INADDR_ANY);
 
 	result = bind(s, (struct sockaddr FAR*)&sa, sizeof(sa));

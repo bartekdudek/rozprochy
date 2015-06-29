@@ -10,6 +10,9 @@ Ball::Ball(double x, double y)
 	this->vy = 0;
 	this->vx = 0;
 	this->v = 0;
+
+	goal = false;
+	licznik = 0;
 }
 
 double Ball::GetX()
@@ -22,7 +25,7 @@ double Ball::GetY()
 	return y;
 }
 
-void Ball::MoveBall(Team* redTeam, Team* blueTeam)
+void Ball::MoveBall(Team* redTeam, Team* blueTeam, int* redScore, int* blueScore)
 {
 	Player* temp;
 	bool collision = false;
@@ -38,10 +41,31 @@ void Ball::MoveBall(Team* redTeam, Team* blueTeam)
 	double coeff_b = NULL;
 	double dist_simple_to_point = NULL;
 	bool near_the_boundry = false;
+	
+
+	if (goal == true)
+		licznik++;
+
+	if (licznik == BALL_COUNTER)
+	{
+		goal = false;
+		this->x = 491;
+		this->y = 245 + (WINDOW_HEIGHT - COURT_HEIGHT);
+		this->vx = 0;
+		this->vy = 0;
+		this->v = 0;
+		licznik = 0;
+	}
 
 	if (x + vx > X_RIGHT_BOUNDRY) {
 		if (y < GOAL_DOWN_POST && y > GOAL_UP_POST && x + vx < X_RIGHT_BOUNDRY + GOAL_DEPTH){
 			this->x += vx;
+			if (goal == false && licznik == 0)
+			{
+				(*redScore)++;
+				goal = true;
+			}
+			
 		}
 		else if (y < GOAL_DOWN_POST && y > GOAL_UP_POST && x + vx > X_RIGHT_BOUNDRY + GOAL_DEPTH){
 			this->x = this->x = X_RIGHT_BOUNDRY + GOAL_DEPTH - MOVE_CHANGE;
@@ -59,6 +83,11 @@ void Ball::MoveBall(Team* redTeam, Team* blueTeam)
 	else if (x + vx < X_LEFT_BOUNDRY) {
 		if (y < GOAL_DOWN_POST && y > GOAL_UP_POST && x + vx > X_LEFT_BOUNDRY - GOAL_DEPTH){
 			this->x += vx;
+			if (goal == false && licznik == 0)
+			{
+				(*blueScore)++;
+				goal = true;
+			}
 		}
 		else if (y < GOAL_DOWN_POST && y > GOAL_UP_POST && x + vx < X_LEFT_BOUNDRY - GOAL_DEPTH){
 			this->x = this->x = X_LEFT_BOUNDRY - GOAL_DEPTH + MOVE_CHANGE;

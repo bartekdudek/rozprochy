@@ -16,10 +16,12 @@ private:
 	double v;
 	double angle;
 	double direction;
+	bool goal;
+	unsigned int licznik;
 public:
 	Ball(double x, double y);
 
-	void MoveBall(Team* redTeam, Team* blueTeam);
+	void MoveBall(Team* redTeam, Team* blueTeam, int* redScore, int* blueScore);
 	void SetSpeed(double vy, double vx, int direction, bool kicked);
 
 	double GetX();

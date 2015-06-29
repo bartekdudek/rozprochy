@@ -12,11 +12,6 @@ void receiveCoeffs(SOCKET s, Image** images)
 		recv(s, tmp, STRING_SIZE, 0);
 		images[i]->setY(atof(tmp));
 	}
-
-	recv(s, tmp, STRING_SIZE, 0);
-	redScore = atoi(tmp);
-	recv(s, tmp, STRING_SIZE, 0);
-	blueScore = atoi(tmp);
 }
 
 int main()
@@ -95,7 +90,7 @@ int main()
 
 	memset((void *)(&sa), 0, sizeof(sa));
 	sa.sin_family = AF_INET;
-	sa.sin_port = htons(10000);
+	sa.sin_port = htons(1000);
 	sa.sin_addr.s_addr = inet_addr("127.0.0.1"); //testowe
 	//sa.sin_addr.s_addr = inet_addr("192.168.1.102");
 
