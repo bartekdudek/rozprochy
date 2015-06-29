@@ -285,6 +285,13 @@ int main()
 				WaitForSingleObject(ghMutex, INFINITE);
 
 				send(s, "GetCoeff", STRING_SIZE, 0);
+
+				recv(s, tmp, STRING_SIZE, 0);
+				redScore = atoi(tmp);
+
+				recv(s, tmp, STRING_SIZE, 0);
+				blueScore = atoi(tmp);
+
 				recv(s, tmp, STRING_SIZE, 0);
 				if (strcmp(tmp, "GAMEOVER") == 0)
 				{

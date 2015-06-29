@@ -169,6 +169,11 @@ DWORD WINAPI connection(void *argumenty)
 			{
 				WaitForSingleObject(ghMutex, INFINITE);
 
+				sprintf(tempString, "%d", redScore);
+				send(sock, tempString, STRING_SIZE, 0);
+				sprintf(tempString, "%d", blueScore);
+				send(sock, tempString, STRING_SIZE, 0);
+
 				if (over == true)
 				{
 					send(sock, "GAMEOVER", STRING_SIZE, 0);

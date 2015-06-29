@@ -37,3 +37,6 @@ HANDLE ghMutex;
 
 bool over = false;
 char winningTeam[10];
+
+int redScore;
+int blueScore;
