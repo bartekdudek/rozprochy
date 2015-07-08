@@ -364,7 +364,7 @@ int main()
 
 	memset((void *)(&sa), 0, sizeof(sa));
 	sa.sin_family = AF_INET;
-	sa.sin_port = htons(1000);
+	sa.sin_port = htons(50000);
 	sa.sin_addr.s_addr = htonl(INADDR_ANY);
 
 	result = bind(s, (struct sockaddr FAR*)&sa, sizeof(sa));
@@ -374,9 +374,8 @@ int main()
 
 	while (1)
 	{
-
 		lenc = sizeof(sc);
-		si[order] = accept(s, (struct sockaddr FAR *) &sc, &lenc);
+		si[order] = accept(s, (struct sockaddr FAR *) &scomplete[order], &lenc);
 
 		DWORD dwThreadId;
 		dane[order].numer = order;

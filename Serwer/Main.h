@@ -21,6 +21,7 @@ SOCKET s;
 
 struct sockaddr_in sa;
 struct sockaddr_in sc;
+struct sockaddr_in scomplete[PLAYERS_IN_TEAM*2];
 
 int lenc;
 int i;
