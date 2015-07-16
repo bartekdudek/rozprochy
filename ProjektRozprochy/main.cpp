@@ -90,9 +90,9 @@ int main(int argc, char * argv[])
 
 	memset((void *)(&sa), 0, sizeof(sa));
 	sa.sin_family = AF_INET;
-	sa.sin_port = htons(5000);
-	sa.sin_addr.s_addr = inet_addr(argv[0]); //testowe
-	//sa.sin_addr.s_addr = inet_addr("192.168.1.102");
+
+	sa.sin_port = htons(PORT);
+	sa.sin_addr.s_addr = inet_addr(argv[0]);
 
 	al_clear_to_color(al_map_rgb(204, 153, 255));
 	al_draw_text(font, al_map_rgb(0, 0, 0), WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2.5, 0, "No connection!");
