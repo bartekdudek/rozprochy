@@ -14,7 +14,7 @@ void receiveCoeffs(SOCKET s, Image** images)
 	}
 }
 
-int main()
+int main(int argc, char * argv[])
 {
 	ALLEGRO_DISPLAY* window;
 
@@ -90,8 +90,8 @@ int main()
 
 	memset((void *)(&sa), 0, sizeof(sa));
 	sa.sin_family = AF_INET;
-	sa.sin_port = htons(50000);
-	sa.sin_addr.s_addr = inet_addr("25.157.5.61"); //testowe
+	sa.sin_port = htons(5000);
+	sa.sin_addr.s_addr = inet_addr(argv[0]); //testowe
 	//sa.sin_addr.s_addr = inet_addr("192.168.1.102");
 
 	al_clear_to_color(al_map_rgb(204, 153, 255));
