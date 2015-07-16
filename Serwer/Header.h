@@ -39,7 +39,7 @@
 
 #define MOVE_CHANGE 0.7
 #define MOVE_CHANGE_KICK MOVE_CHANGE*6.0
-#define MOVE_DELTA 9.0
+#define MOVE_DELTA 3.5
 #define SLOWING_BALL_COEFF 1.01
 
 #define STRING_SIZE 80
