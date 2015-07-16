@@ -23,6 +23,9 @@
 
 #define STRING_SIZE 80
 
+#define IP "25.157.5.61"
+#define PORT 50000
+
 enum Squad
 {
 	red,

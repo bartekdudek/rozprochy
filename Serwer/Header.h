@@ -56,6 +56,8 @@
 
 #define WINNING_SCORE 3
 
+#define PORT 50000
+
 enum Squad
 {
 	red,
