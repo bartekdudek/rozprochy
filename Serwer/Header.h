@@ -52,9 +52,9 @@
 
 #define DIRECTING_COEFF 4.0
 
-#define BALL_COUNTER 250
+#define BALL_COUNTER 200
 
-#define WINNING_SCORE 3
+#define WINNING_SCORE 1
 
 #define PORT 50000
 
