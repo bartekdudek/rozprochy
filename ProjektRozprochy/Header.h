@@ -19,7 +19,7 @@
 #define BALL_SIZE 35
 
 #define FPS 100.0
-#define LPS 15.0 //loads per second
+#define LPS 8.0 //loads per second
 
 #define STRING_SIZE 80
 
